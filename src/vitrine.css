@@ -1,0 +1,598 @@
+/* ==========================================================================
+   Vitrine — generative UI for conversations that sell
+   --------------------------------------------------------------------------
+   The theming contract, in one sentence:
+
+     The HOST owns layout, spacing, hierarchy, depth and motion.
+     The TENANT owns accent, radius, typeface and logo. Nothing else.
+
+   That split is deliberate. It is what lets fifty brands ship on one
+   codebase without fifty design regressions. Tenant-writable tokens are
+   marked WRITABLE below; everything else is host-owned and is not part of
+   the public theming surface.
+   ========================================================================== */
+
+:root {
+  /* ---- WRITABLE: the entire tenant surface. Four knobs, on purpose. ---- */
+  --vt-accent:        #0066cc;
+  --vt-radius:        18px;
+  --vt-font:          -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Inter, Roboto, Helvetica, Arial, sans-serif;
+  --vt-logo-size:     22px;
+
+  /* ---- Derived from the accent by theme.js. Do not set by hand. ----
+     --vt-accent      the brand colour, used for FILLS (buttons, chips, marks)
+     --vt-accent-text the same colour nudged until it clears WCAG AA against
+                      the page surface. Any accent-coloured TEXT must use this
+                      one, or a tenant's pale brand becomes unreadable copy. */
+  --vt-accent-text:   #0066cc;
+  --vt-on-accent:     #ffffff;
+  --vt-accent-soft:   rgba(0, 102, 204, 0.10);
+  --vt-accent-ring:   rgba(0, 102, 204, 0.28);
+
+  /* ---- HOST-OWNED. Not part of the tenant contract. ---- */
+  --vt-surface:       #ffffff;
+  --vt-surface-2:     #f5f5f7;
+  --vt-surface-3:     #fafafc;
+  --vt-ink:           #1d1d1f;
+  --vt-ink-2:         #56565b;
+  --vt-ink-3:         #8a8a8f;
+  --vt-hairline:      rgba(0, 0, 0, 0.08);
+  --vt-hairline-2:    rgba(0, 0, 0, 0.05);
+  --vt-track:         rgba(0, 0, 0, 0.08);
+  --vt-shadow:        0 1px 2px rgba(0,0,0,.04), 0 8px 26px rgba(0,0,0,.06);
+  --vt-shadow-lift:   0 2px 6px rgba(0,0,0,.06), 0 14px 40px rgba(0,0,0,.10);
+
+  --vt-radius-sm:     calc(var(--vt-radius) * 0.6);
+  --vt-radius-xs:     calc(var(--vt-radius) * 0.42);
+
+  /* Apple's standard interface easing. Not a bounce — a settle. */
+  --vt-spring:        cubic-bezier(0.32, 0.72, 0, 1);
+  --vt-dur:           420ms;
+  --vt-dur-fast:      220ms;
+}
+
+[data-vt-scheme="dark"] {
+  --vt-surface:       #101012;
+  --vt-surface-2:     #1c1c1f;
+  --vt-surface-3:     #08080a;
+  --vt-ink:           #f5f5f7;
+  --vt-ink-2:         #c2c2c8;
+  --vt-ink-3:         #8a8a90;
+  --vt-hairline:      rgba(255, 255, 255, 0.12);
+  --vt-hairline-2:    rgba(255, 255, 255, 0.07);
+  --vt-track:         rgba(255, 255, 255, 0.11);
+  --vt-shadow:        0 1px 2px rgba(0,0,0,.5), 0 10px 32px rgba(0,0,0,.45);
+  --vt-shadow-lift:   0 2px 8px rgba(0,0,0,.55), 0 18px 48px rgba(0,0,0,.55);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root { --vt-dur: 1ms; --vt-dur-fast: 1ms; }
+  .vt * { animation-duration: 1ms !important; transition-duration: 1ms !important; }
+}
+
+/* ==========================================================================
+   Shell
+   ========================================================================== */
+
+.vt, .vt * { box-sizing: border-box; }
+
+.vt {
+  font-family: var(--vt-font);
+  font-size: 15.5px;
+  line-height: 1.5;
+  letter-spacing: -0.011em;
+  color: var(--vt-ink);
+  background: var(--vt-surface-3);
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  -webkit-font-smoothing: antialiased;
+}
+
+.vt-header {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--vt-hairline-2);
+  background: color-mix(in srgb, var(--vt-surface) 90%, transparent);
+  backdrop-filter: saturate(180%) blur(20px);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  flex: 0 0 auto;
+}
+.vt-logo {
+  width: var(--vt-logo-size);
+  height: var(--vt-logo-size);
+  border-radius: calc(var(--vt-logo-size) * 0.28);
+  background: var(--vt-accent);
+  color: var(--vt-on-accent);
+  display: grid;
+  place-items: center;
+  font-size: calc(var(--vt-logo-size) * 0.5);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  flex: 0 0 auto;
+}
+.vt-title { font-size: 14.5px; font-weight: 620; letter-spacing: -0.012em; }
+.vt-title span { display: block; font-size: 12px; font-weight: 400; color: var(--vt-ink-3); letter-spacing: 0; }
+.vt-header-right { margin-left: auto; display: flex; align-items: center; gap: 6px; }
+
+.vt-ai-badge {
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.045em;
+  text-transform: uppercase;
+  color: var(--vt-ink-3);
+  border: 1px solid var(--vt-hairline);
+  padding: 4px 9px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+/* ==========================================================================
+   Thread
+   ========================================================================== */
+
+.vt-thread {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 22px 20px 8px;
+  scroll-behavior: smooth;
+  overscroll-behavior: contain;
+}
+@media (prefers-reduced-motion: reduce) { .vt-thread { scroll-behavior: auto; } }
+
+.vt-turn { margin-bottom: 18px; }
+.vt-turn:last-child { margin-bottom: 4px; }
+
+/* Every block enters the same way: 8px up, fade, settle. Nothing bounces,
+   nothing slides sideways, nothing reflows after it lands. */
+.vt-enter {
+  animation: vt-enter var(--vt-dur) var(--vt-spring) both;
+}
+@keyframes vt-enter {
+  from { opacity: 0; transform: translate3d(0, 8px, 0) scale(0.994); }
+  to   { opacity: 1; transform: none; }
+}
+
+.vt-bubble {
+  max-width: 82%;
+  padding: 11px 15px;
+  border-radius: var(--vt-radius-sm);
+  font-size: 15.5px;
+  line-height: 1.5;
+}
+.vt-bubble.user {
+  margin-left: auto;
+  background: var(--vt-accent);
+  color: var(--vt-on-accent);
+  border-bottom-right-radius: var(--vt-radius-xs);
+}
+.vt-bubble.agent {
+  background: var(--vt-surface);
+  color: var(--vt-ink);
+  border: 1px solid var(--vt-hairline-2);
+  border-bottom-left-radius: var(--vt-radius-xs);
+  box-shadow: var(--vt-shadow);
+}
+.vt-bubble p { margin: 0 0 9px; }
+.vt-bubble p:last-child { margin-bottom: 0; }
+.vt-bubble strong { font-weight: 620; }
+
+/* The caret that trails streaming text. Removed on completion, so the final
+   layout never contains it — no reflow at the end of a stream. */
+.vt-caret {
+  display: inline-block;
+  width: 2px;
+  height: 1.05em;
+  vertical-align: text-bottom;
+  background: currentColor;
+  opacity: .55;
+  margin-left: 1px;
+  animation: vt-blink 1.05s steps(2, start) infinite;
+}
+@keyframes vt-blink { 50% { opacity: 0; } }
+
+.vt-typing { display: inline-flex; gap: 4px; padding: 3px 2px; }
+.vt-typing i {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--vt-ink-3);
+  animation: vt-bob 1.15s var(--vt-spring) infinite;
+}
+.vt-typing i:nth-child(2) { animation-delay: .13s; }
+.vt-typing i:nth-child(3) { animation-delay: .26s; }
+@keyframes vt-bob { 0%,60%,100% { transform: none; opacity:.45 } 30% { transform: translateY(-4px); opacity:.9 } }
+
+/* ==========================================================================
+   Card chrome — shared by every registry component
+   ========================================================================== */
+
+.vt-card {
+  background: var(--vt-surface);
+  border: 1px solid var(--vt-hairline-2);
+  border-radius: var(--vt-radius);
+  box-shadow: var(--vt-shadow);
+  overflow: hidden;
+}
+.vt-card + .vt-card { margin-top: 10px; }
+
+.vt-card-head { padding: 16px 18px 0; }
+.vt-card-title { font-size: 15px; font-weight: 620; letter-spacing: -0.013em; margin: 0; }
+.vt-card-sub { font-size: 13px; color: var(--vt-ink-3); margin: 3px 0 0; line-height: 1.4; }
+.vt-card-body { padding: 14px 18px 16px; }
+
+/* Skeletons reserve the exact final height. A card that changes size after
+   it hydrates is the single most expensive-feeling bug in a chat UI. */
+.vt-skel {
+  background: var(--vt-surface);
+  border: 1px solid var(--vt-hairline-2);
+  border-radius: var(--vt-radius);
+  overflow: hidden;
+  position: relative;
+}
+.vt-skel::after {
+  content: "";
+  position: absolute; inset: 0;
+  background: linear-gradient(100deg, transparent 20%, color-mix(in srgb, var(--vt-ink) 6%, transparent) 50%, transparent 80%);
+  transform: translateX(-100%);
+  animation: vt-shimmer 1.35s var(--vt-spring) infinite;
+}
+@keyframes vt-shimmer { to { transform: translateX(100%); } }
+.vt-skel-line { height: 11px; border-radius: 5px; background: var(--vt-track); margin: 13px 18px; }
+.vt-skel-line.w60 { width: 60%; } .vt-skel-line.w40 { width: 40%; } .vt-skel-line.w80 { width: 80%; }
+.vt-skel-block { height: 118px; background: var(--vt-track); margin: 14px 18px; border-radius: var(--vt-radius-sm); }
+
+/* ==========================================================================
+   Controls
+   ========================================================================== */
+
+.vt-btn {
+  font: inherit;
+  font-size: 14.5px;
+  font-weight: 560;
+  letter-spacing: -0.01em;
+  border: 1px solid transparent;
+  border-radius: var(--vt-radius-xs);
+  padding: 10px 16px;
+  cursor: pointer;
+  background: var(--vt-accent);
+  color: var(--vt-on-accent);
+  transition: transform var(--vt-dur-fast) var(--vt-spring), filter var(--vt-dur-fast) var(--vt-spring), opacity var(--vt-dur-fast);
+  -webkit-tap-highlight-color: transparent;
+}
+.vt-btn:hover { filter: brightness(1.07); }
+.vt-btn:active { transform: scale(0.975); }
+.vt-btn.ghost {
+  background: transparent;
+  color: var(--vt-ink);
+  border-color: var(--vt-hairline);
+}
+.vt-btn.ghost:hover { background: var(--vt-surface-2); filter: none; }
+.vt-btn.quiet { background: var(--vt-surface-2); color: var(--vt-ink); }
+.vt-btn[disabled] { opacity: .42; cursor: not-allowed; transform: none; }
+.vt-btn.block { display: block; width: 100%; }
+
+.vt :focus-visible {
+  outline: 2px solid var(--vt-accent);
+  outline-offset: 2px;
+  border-radius: var(--vt-radius-xs);
+}
+
+.vt-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.vt-chip {
+  font: inherit;
+  font-size: 14px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  border: 1px solid var(--vt-hairline);
+  background: var(--vt-surface);
+  color: var(--vt-ink);
+  cursor: pointer;
+  transition: transform var(--vt-dur-fast) var(--vt-spring), background var(--vt-dur-fast), border-color var(--vt-dur-fast);
+}
+.vt-chip:hover { background: var(--vt-accent-soft); border-color: var(--vt-accent-ring); }
+.vt-chip:active { transform: scale(0.96); }
+
+.vt-field { display: block; margin-bottom: 12px; }
+.vt-field:last-child { margin-bottom: 0; }
+.vt-label {
+  display: block;
+  font-size: 12px;
+  font-weight: 560;
+  color: var(--vt-ink-3);
+  letter-spacing: 0.005em;
+  margin-bottom: 5px;
+}
+.vt-input {
+  font: inherit;
+  font-size: 15px;
+  width: 100%;
+  padding: 10px 13px;
+  border-radius: var(--vt-radius-xs);
+  border: 1px solid var(--vt-hairline);
+  background: var(--vt-surface-2);
+  color: var(--vt-ink);
+  transition: border-color var(--vt-dur-fast), background var(--vt-dur-fast);
+}
+.vt-input:focus { border-color: var(--vt-accent); background: var(--vt-surface); outline: none; }
+.vt-input::placeholder { color: var(--vt-ink-3); }
+
+/* ==========================================================================
+   unit_carousel
+   ========================================================================== */
+
+.vt-rail {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  padding: 14px 18px 18px;
+  margin: 0;
+  scrollbar-width: thin;
+}
+.vt-rail::-webkit-scrollbar { height: 6px; }
+.vt-rail::-webkit-scrollbar-thumb { background: var(--vt-track); border-radius: 3px; }
+
+.vt-unit {
+  scroll-snap-align: start;
+  flex: 0 0 232px;
+  border: 1px solid var(--vt-hairline-2);
+  border-radius: var(--vt-radius-sm);
+  background: var(--vt-surface);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  padding: 0;
+  transition: transform var(--vt-dur) var(--vt-spring), box-shadow var(--vt-dur) var(--vt-spring), border-color var(--vt-dur-fast);
+}
+.vt-unit:hover { transform: translateY(-3px); box-shadow: var(--vt-shadow-lift); border-color: var(--vt-hairline); }
+.vt-unit:active { transform: translateY(-1px) scale(0.993); }
+.vt-unit[aria-pressed="true"] { border-color: var(--vt-accent); box-shadow: 0 0 0 3px var(--vt-accent-ring); }
+
+.vt-unit-art {
+  height: 124px;
+  position: relative;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+}
+.vt-unit-art svg { width: 78%; height: 78%; }
+.vt-unit-tag {
+  position: absolute; top: 9px; left: 9px;
+  font-size: 10.5px; font-weight: 650; letter-spacing: .04em; text-transform: uppercase;
+  padding: 4px 8px; border-radius: 7px;
+  background: color-mix(in srgb, var(--vt-surface) 88%, transparent);
+  backdrop-filter: blur(8px);
+  color: var(--vt-ink-2);
+}
+.vt-unit-body { padding: 12px 13px 13px; display: flex; flex-direction: column; gap: 3px; flex: 1; }
+.vt-unit-name { font-size: 14.5px; font-weight: 620; letter-spacing: -0.012em; line-height: 1.25; }
+.vt-unit-meta { font-size: 12.5px; color: var(--vt-ink-3); }
+.vt-unit-price {
+  margin-top: auto; padding-top: 9px;
+  font-size: 17px; font-weight: 650; letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+}
+.vt-unit-mo { font-size: 12.5px; color: var(--vt-ink-3); font-weight: 400; letter-spacing: 0; }
+
+/* ==========================================================================
+   unit_compare
+   ========================================================================== */
+
+.vt-cmp { width: 100%; border-collapse: collapse; font-size: 14px; }
+.vt-cmp th, .vt-cmp td {
+  padding: 11px 14px;
+  text-align: left;
+  border-top: 1px solid var(--vt-hairline-2);
+  vertical-align: top;
+}
+.vt-cmp thead th {
+  border-top: none;
+  font-size: 14.5px; font-weight: 620; letter-spacing: -0.012em;
+  color: var(--vt-ink);
+  padding-top: 4px;
+}
+.vt-cmp thead th:first-child { color: var(--vt-ink-3); font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .05em; }
+.vt-cmp tbody th {
+  font-size: 12.5px; font-weight: 500; color: var(--vt-ink-3);
+  width: 34%;
+}
+.vt-cmp td { font-variant-numeric: tabular-nums; color: var(--vt-ink); }
+/* Accent as TEXT — must use the contrast-corrected token, not the raw brand
+   colour. With the Citrus preset this is the difference between a readable
+   cell and pale yellow on white. */
+.vt-cmp td.best { color: var(--vt-accent-text); font-weight: 620; }
+.vt-cmp-wrap { overflow-x: auto; padding: 4px 4px 8px; }
+
+/* ==========================================================================
+   finance_slider
+   ========================================================================== */
+
+.vt-fin-figure {
+  display: flex; align-items: baseline; gap: 8px;
+  padding: 4px 0 14px;
+}
+.vt-fin-amount {
+  font-size: 40px; font-weight: 680; letter-spacing: -0.035em; line-height: 1;
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum";
+}
+.vt-fin-per { font-size: 15px; color: var(--vt-ink-3); }
+
+.vt-slider { margin-bottom: 16px; }
+.vt-slider:last-of-type { margin-bottom: 4px; }
+.vt-slider-top {
+  display: flex; justify-content: space-between; align-items: baseline;
+  margin-bottom: 8px;
+}
+.vt-slider-name { font-size: 12.5px; color: var(--vt-ink-3); font-weight: 500; }
+.vt-slider-val { font-size: 13.5px; font-weight: 620; font-variant-numeric: tabular-nums; }
+
+.vt-range {
+  -webkit-appearance: none; appearance: none;
+  width: 100%; height: 22px; background: transparent; cursor: pointer; display: block;
+}
+.vt-range::-webkit-slider-runnable-track {
+  height: 5px; border-radius: 3px;
+  background: linear-gradient(to right, var(--vt-accent) var(--vt-pct, 50%), var(--vt-track) var(--vt-pct, 50%));
+}
+.vt-range::-moz-range-track { height: 5px; border-radius: 3px; background: var(--vt-track); }
+.vt-range::-moz-range-progress { height: 5px; border-radius: 3px; background: var(--vt-accent); }
+.vt-range::-webkit-slider-thumb {
+  -webkit-appearance: none; appearance: none;
+  width: 22px; height: 22px; border-radius: 50%;
+  background: #fff; margin-top: -8.5px;
+  box-shadow: 0 1px 3px rgba(0,0,0,.22), 0 3px 10px rgba(0,0,0,.14);
+  border: .5px solid rgba(0,0,0,.06);
+  transition: transform var(--vt-dur-fast) var(--vt-spring);
+}
+.vt-range::-moz-range-thumb {
+  width: 21px; height: 21px; border-radius: 50%; border: .5px solid rgba(0,0,0,.06);
+  background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,.22), 0 3px 10px rgba(0,0,0,.14);
+}
+.vt-range:active::-webkit-slider-thumb { transform: scale(1.12); }
+
+/* Regulation Z / Regulation M. A rendered monthly payment is an advertised
+   trigger term; the disclosure travels with the card, by construction, and
+   the renderer refuses to draw the card without it. */
+.vt-disclosure {
+  margin-top: 16px;
+  padding: 12px 14px;
+  border-radius: var(--vt-radius-xs);
+  background: var(--vt-surface-2);
+  border: 1px solid var(--vt-hairline-2);
+  font-size: 11.5px;
+  line-height: 1.5;
+  color: var(--vt-ink-3);
+}
+.vt-disclosure b { color: var(--vt-ink-2); font-weight: 600; display: block; margin-bottom: 4px; font-size: 11px; letter-spacing: .04em; text-transform: uppercase; }
+.vt-disclosure dl { display: grid; grid-template-columns: auto 1fr; gap: 2px 12px; margin: 0 0 7px; }
+.vt-disclosure dt { color: var(--vt-ink-3); }
+.vt-disclosure dd { margin: 0; color: var(--vt-ink-2); font-variant-numeric: tabular-nums; text-align: right; }
+
+/* ==========================================================================
+   schedule
+   ========================================================================== */
+
+.vt-days { display: flex; gap: 7px; overflow-x: auto; padding-bottom: 4px; margin-bottom: 13px; }
+.vt-day {
+  flex: 0 0 auto; min-width: 58px;
+  border: 1px solid var(--vt-hairline); border-radius: var(--vt-radius-xs);
+  background: var(--vt-surface); color: var(--vt-ink);
+  padding: 9px 6px; text-align: center; cursor: pointer; font: inherit;
+  transition: transform var(--vt-dur-fast) var(--vt-spring), background var(--vt-dur-fast), border-color var(--vt-dur-fast);
+}
+.vt-day:active { transform: scale(0.96); }
+.vt-day[aria-pressed="true"] { background: var(--vt-accent); color: var(--vt-on-accent); border-color: transparent; }
+.vt-day .dow { display: block; font-size: 10.5px; text-transform: uppercase; letter-spacing: .06em; opacity: .65; }
+.vt-day .dnum { display: block; font-size: 17px; font-weight: 620; letter-spacing: -0.02em; margin-top: 2px; font-variant-numeric: tabular-nums; }
+
+.vt-slots { display: grid; grid-template-columns: repeat(auto-fill, minmax(84px, 1fr)); gap: 8px; }
+.vt-slot {
+  font: inherit; font-size: 14px; font-variant-numeric: tabular-nums;
+  padding: 9px 4px; border-radius: var(--vt-radius-xs);
+  border: 1px solid var(--vt-hairline); background: var(--vt-surface); color: var(--vt-ink);
+  cursor: pointer;
+  transition: transform var(--vt-dur-fast) var(--vt-spring), background var(--vt-dur-fast), border-color var(--vt-dur-fast);
+}
+.vt-slot:hover:not([disabled]) { border-color: var(--vt-accent-ring); background: var(--vt-accent-soft); }
+.vt-slot:active:not([disabled]) { transform: scale(0.96); }
+.vt-slot[aria-pressed="true"] { background: var(--vt-accent); color: var(--vt-on-accent); border-color: transparent; }
+.vt-slot[disabled] { opacity: .3; cursor: not-allowed; text-decoration: line-through; }
+
+/* ==========================================================================
+   trade_in / lead_capture
+   ========================================================================== */
+
+.vt-grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+@media (max-width: 460px) { .vt-grid2 { grid-template-columns: 1fr; } }
+
+.vt-estimate {
+  margin-top: 14px; padding: 14px 16px;
+  border-radius: var(--vt-radius-sm);
+  background: var(--vt-accent-soft);
+  border: 1px solid var(--vt-accent-ring);
+}
+.vt-estimate .k { font-size: 11.5px; text-transform: uppercase; letter-spacing: .05em; color: var(--vt-ink-3); font-weight: 600; }
+.vt-estimate .v { font-size: 27px; font-weight: 680; letter-spacing: -0.028em; margin-top: 3px; font-variant-numeric: tabular-nums; }
+.vt-estimate .n { font-size: 11.5px; color: var(--vt-ink-3); margin-top: 5px; line-height: 1.45; }
+
+/* ==========================================================================
+   summary_receipt
+   ========================================================================== */
+
+.vt-receipt-check {
+  width: 42px; height: 42px; border-radius: 50%;
+  background: var(--vt-accent); color: var(--vt-on-accent);
+  display: grid; place-items: center; margin-bottom: 12px;
+  animation: vt-pop var(--vt-dur) var(--vt-spring) both;
+}
+@keyframes vt-pop {
+  from { transform: scale(0.4); opacity: 0; }
+  to   { transform: scale(1); opacity: 1; }
+}
+.vt-receipt dl { display: grid; grid-template-columns: auto 1fr; gap: 9px 16px; margin: 14px 0 0; font-size: 14px; }
+.vt-receipt dt { color: var(--vt-ink-3); }
+.vt-receipt dd { margin: 0; text-align: right; font-weight: 560; font-variant-numeric: tabular-nums; }
+
+/* ==========================================================================
+   Composer
+   ========================================================================== */
+
+.vt-composer {
+  flex: 0 0 auto;
+  padding: 12px 16px 16px;
+  border-top: 1px solid var(--vt-hairline-2);
+  background: color-mix(in srgb, var(--vt-surface) 82%, transparent);
+  backdrop-filter: saturate(180%) blur(20px);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+}
+.vt-composer-row {
+  display: flex; align-items: flex-end; gap: 9px;
+  background: var(--vt-surface);
+  border: 1px solid var(--vt-hairline);
+  border-radius: var(--vt-radius);
+  padding: 6px 6px 6px 15px;
+  transition: border-color var(--vt-dur-fast), box-shadow var(--vt-dur-fast);
+}
+.vt-composer-row:focus-within { border-color: var(--vt-accent); box-shadow: 0 0 0 3px var(--vt-accent-ring); }
+.vt-composer textarea {
+  flex: 1; border: none; outline: none; background: transparent; resize: none;
+  font: inherit; font-size: 15.5px; color: var(--vt-ink);
+  padding: 9px 0; max-height: 120px; line-height: 1.45;
+}
+.vt-composer textarea::placeholder { color: var(--vt-ink-3); }
+.vt-send {
+  flex: 0 0 auto; width: 34px; height: 34px; border-radius: 50%; border: none;
+  background: var(--vt-accent); color: var(--vt-on-accent);
+  cursor: pointer; display: grid; place-items: center;
+  transition: transform var(--vt-dur-fast) var(--vt-spring), opacity var(--vt-dur-fast);
+}
+.vt-send:active { transform: scale(0.9); }
+.vt-send[disabled] { opacity: .3; cursor: default; }
+
+.vt-suggestions { display: flex; gap: 7px; flex-wrap: wrap; margin-bottom: 10px; }
+.vt-sugg {
+  font: inherit; font-size: 13px;
+  padding: 7px 12px; border-radius: 999px;
+  border: 1px solid var(--vt-hairline); background: var(--vt-surface);
+  color: var(--vt-ink-2); cursor: pointer;
+  transition: transform var(--vt-dur-fast) var(--vt-spring), background var(--vt-dur-fast);
+}
+.vt-sugg:hover { background: var(--vt-accent-soft); color: var(--vt-ink); }
+.vt-sugg:active { transform: scale(0.96); }
+
+.vt-sr {
+  position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+}

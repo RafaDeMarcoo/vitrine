@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vitrine — generative UI for conversations that sell</title>
+<meta name="description" content="A white-label generative UI chat widget. The model picks from a typed component registry; the client renders. No markup from the model, ever.">
+<link rel="stylesheet" href="src/vitrine.css">
+<style>
+  :root{
+    --pg:#f2f2f5; --pg2:#ffffff; --pgi:#1d1d1f; --pgi2:#54545a; --pgi3:#8a8a90;
+    --pgline:rgba(0,0,0,.09); --pgline2:rgba(0,0,0,.055);
+    --pgsh:0 1px 2px rgba(0,0,0,.04), 0 10px 34px rgba(0,0,0,.07);
+    --pgaccent:#0066cc;
+  }
+  [data-scheme="dark"]{
+    --pg:#0a0a0c; --pg2:#141417; --pgi:#f5f5f7; --pgi2:#c2c2c8; --pgi3:#8a8a90;
+    --pgline:rgba(255,255,255,.13); --pgline2:rgba(255,255,255,.075);
+    --pgsh:0 1px 2px rgba(0,0,0,.5), 0 14px 44px rgba(0,0,0,.5);
+    --pgaccent:#4d9fff;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0; background:var(--pg); color:var(--pgi);
+    font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Inter,Roboto,Helvetica,Arial,sans-serif;
+    font-size:16px; line-height:1.55; letter-spacing:-0.011em;
+    -webkit-font-smoothing:antialiased;
+    transition:background .4s cubic-bezier(.32,.72,0,1), color .4s cubic-bezier(.32,.72,0,1);
+  }
+  .page{max-width:1240px;margin:0 auto;padding:56px 28px 80px}
+  @media (max-width:900px){ .page{padding:36px 18px 56px} }
+
+  header.hero{max-width:660px;margin-bottom:40px}
+  .kicker{
+    display:inline-flex;align-items:center;gap:8px;
+    font-size:12px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;
+    color:var(--pgaccent);margin-bottom:16px
+  }
+  .kicker i{width:6px;height:6px;border-radius:50%;background:currentColor;display:block}
+  h1{font-size:clamp(34px,5vw,50px);line-height:1.05;letter-spacing:-0.03em;font-weight:700;margin:0 0 16px}
+  .hero p{font-size:19px;line-height:1.5;color:var(--pgi2);margin:0 0 12px}
+  .hero p.small{font-size:15.5px;color:var(--pgi3)}
+  .hero code{
+    font-family:ui-monospace,SFMono-Regular,"SF Mono",Menlo,monospace;font-size:.88em;
+    background:var(--pg2);padding:2px 6px;border-radius:6px;border:1px solid var(--pgline2)
+  }
+
+  .layout{display:grid;grid-template-columns:1fr 400px;gap:28px;align-items:start}
+  @media (max-width:1000px){ .layout{grid-template-columns:1fr} }
+
+  .panel{
+    background:var(--pg2);border:1px solid var(--pgline2);border-radius:20px;
+    box-shadow:var(--pgsh);padding:22px 24px;margin-bottom:18px
+  }
+  .panel h2{font-size:12px;font-weight:650;letter-spacing:.06em;text-transform:uppercase;color:var(--pgi3);margin:0 0 14px}
+  .panel p{margin:0 0 12px;font-size:15px;color:var(--pgi2)}
+  .panel p:last-child{margin-bottom:0}
+
+  .themes{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+  .theme{
+    display:flex;align-items:center;gap:10px;text-align:left;
+    border:1px solid var(--pgline);border-radius:13px;background:transparent;
+    padding:11px 13px;cursor:pointer;font:inherit;font-size:14px;color:var(--pgi);
+    transition:transform .22s cubic-bezier(.32,.72,0,1),border-color .22s,background .22s
+  }
+  .theme:hover{background:var(--pg)}
+  .theme:active{transform:scale(.975)}
+  .theme[aria-pressed="true"]{border-color:var(--pgaccent);box-shadow:0 0 0 3px color-mix(in srgb,var(--pgaccent) 22%,transparent)}
+  .swatch{width:22px;height:22px;border-radius:7px;flex:0 0 auto;box-shadow:inset 0 0 0 1px rgba(0,0,0,.08)}
+  .theme small{display:block;color:var(--pgi3);font-size:11.5px}
+
+  .toggles{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+  .tog{
+    font:inherit;font-size:13.5px;padding:8px 14px;border-radius:999px;
+    border:1px solid var(--pgline);background:transparent;color:var(--pgi2);cursor:pointer;
+    transition:transform .22s cubic-bezier(.32,.72,0,1),background .22s
+  }
+  .tog:hover{background:var(--pg)}
+  .tog:active{transform:scale(.96)}
+  .tog[aria-pressed="true"]{background:var(--pgaccent);color:#fff;border-color:transparent}
+
+  .report{list-style:none;margin:0;padding:0;font-size:13px}
+  .report li{display:flex;gap:10px;padding:9px 0;border-top:1px solid var(--pgline2);line-height:1.45}
+  .report li:first-child{border-top:none;padding-top:0}
+  .st{
+    flex:0 0 76px;font-size:10px;font-weight:700;letter-spacing:.06em;
+    padding-top:2px;text-transform:uppercase
+  }
+  .st.PASS{color:#1d7a4c} .st.ADJUSTED{color:#9a6400} .st.WARN{color:#9a6400} .st.FAIL{color:#a5352b}
+  [data-scheme="dark"] .st.PASS{color:#4cc38a} [data-scheme="dark"] .st.ADJUSTED,[data-scheme="dark"] .st.WARN{color:#e0a83c} [data-scheme="dark"] .st.FAIL{color:#ff6b5e}
+  .report .rk{color:var(--pgi);font-weight:560;display:block}
+  .report .rd{color:var(--pgi3)}
+
+  pre.wire{
+    margin:0;font-family:ui-monospace,SFMono-Regular,"SF Mono",Menlo,monospace;
+    font-size:11.5px;line-height:1.55;color:var(--pgi2);
+    background:var(--pg);border:1px solid var(--pgline2);border-radius:13px;
+    padding:14px;max-height:280px;overflow:auto;white-space:pre-wrap;word-break:break-word
+  }
+  .wire-empty{color:var(--pgi3);font-style:italic}
+
+  /* device frame */
+  .stage{position:sticky;top:28px}
+  @media (max-width:1000px){ .stage{position:static} }
+  .device{
+    height:min(760px,82vh);min-height:560px;
+    border-radius:30px;overflow:hidden;
+    border:1px solid var(--pgline);
+    box-shadow:0 2px 8px rgba(0,0,0,.06), 0 30px 70px rgba(0,0,0,.16);
+    background:#fff;
+    transition:border-radius .4s cubic-bezier(.32,.72,0,1)
+  }
+  [data-scheme="dark"] .device{box-shadow:0 2px 8px rgba(0,0,0,.6), 0 30px 80px rgba(0,0,0,.65)}
+  .stage-note{font-size:12.5px;color:var(--pgi3);text-align:center;margin-top:12px}
+
+  .keyrow{display:flex;gap:8px;margin-top:12px}
+  .keyrow input{
+    flex:1;font:inherit;font-size:13.5px;padding:9px 12px;border-radius:11px;
+    border:1px solid var(--pgline);background:var(--pg);color:var(--pgi)
+  }
+  .keyrow input:focus{outline:none;border-color:var(--pgaccent)}
+  .keyrow button{
+    font:inherit;font-size:13.5px;padding:9px 15px;border-radius:11px;border:none;
+    background:var(--pgaccent);color:#fff;cursor:pointer
+  }
+  .keyrow button:active{transform:scale(.97)}
+
+  footer{margin-top:56px;padding-top:24px;border-top:1px solid var(--pgline);font-size:13.5px;color:var(--pgi3)}
+  footer a{color:var(--pgi2)}
+</style>
+</head>
+<body>
+<div class="page">
+
+  <header class="hero">
+    <span class="kicker"><i></i> Open source · MIT</span>
+    <h1>Vitrine</h1>
+    <p>A white-label chat widget where the model picks components instead of writing prose — and never writes markup.</p>
+    <p class="small">
+      Eight typed components in a registry. The model calls one by name and fills a JSON payload;
+      anything that fails schema validation is dropped before it reaches the DOM. Swap
+      <code>src/registry.js</code> and the whole thing retargets at a different industry.
+      No build step, no dependencies, no framework.
+    </p>
+  </header>
+
+  <div class="layout">
+
+    <div>
+      <div class="panel">
+        <h2>Tenant theme</h2>
+        <p>Four tokens are writable: accent, radius, typeface, logo. Layout, spacing, depth and motion stay host-owned — that split is what keeps fifty brands on one codebase.</p>
+        <div class="themes" id="themes"></div>
+        <div class="toggles">
+          <button class="tog" id="tog-scheme" type="button" aria-pressed="false">Dark mode</button>
+          <button class="tog" id="tog-reset" type="button">Restart conversation</button>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h2>Contrast gate</h2>
+        <p>Every accent is measured before it is applied. Try <strong>Citrus</strong> — a real brand yellow that fails WCAG AA out of the box — and watch the gate correct it rather than ship an unreadable widget.</p>
+        <ul class="report" id="report"></ul>
+      </div>
+
+      <div class="panel">
+        <h2>On the wire</h2>
+        <p>Exactly what the planner emitted for the last turn. This is the entire contract: a component name and a payload. No HTML, no JSX, no CSS.</p>
+        <pre class="wire" id="wire"><span class="wire-empty">Send a message and the payload appears here.</span></pre>
+      </div>
+
+      <div class="panel">
+        <h2>Run it against a real model</h2>
+        <p>The demo ships with a deterministic offline planner so it works with no key. Paste an Anthropic key to bind the same registry schemas as tools and let a live model choose the components.</p>
+        <div class="keyrow">
+          <input id="apikey" type="password" placeholder="sk-ant-… (stays in this tab)" autocomplete="off" spellcheck="false">
+          <button id="usekey" type="button">Use live</button>
+        </div>
+        <p style="margin-top:10px;font-size:12.5px;color:var(--pgi3)">
+          The key never leaves your browser, but a browser-side key is a demo affordance, not a
+          deployment. In production the planner call belongs behind your own endpoint — see
+          <em>Going live</em> in the README.
+        </p>
+      </div>
+    </div>
+
+    <div class="stage">
+      <div class="device" id="device"></div>
+      <p class="stage-note" id="stagenote">Deterministic planner · no network</p>
+    </div>
+
+  </div>
+
+  <footer>
+    Built as a reference implementation of the registry pattern — the same model behind
+    Google's A2UI and MCP Apps: the agent composes from a catalog the client already trusts,
+    so a hallucination costs you one dropped card rather than an injection.
+    MIT licensed.
+  </footer>
+</div>
+
+<script src="src/registry.js"></script>
+<script src="src/theme.js"></script>
+<script src="src/renderer.js"></script>
+<script src="demo/inventory.js"></script>
+<script src="src/planner.js"></script>
+<script src="src/vitrine.js"></script>
+<script>
+(function () {
+  "use strict";
+
+  var device   = document.getElementById("device");
+  var themesEl = document.getElementById("themes");
+  var reportEl = document.getElementById("report");
+  var wireEl   = document.getElementById("wire");
+  var noteEl   = document.getElementById("stagenote");
+
+  var scheme = "light";
+  var currentTheme = "graphite";
+  var lastBlocks = [];
+
+  var BRANDS = {
+    graphite: { name: "Northline Powersports", tagline: "Sales · Service · Marine" },
+    marina:   { name: "Harbour & Co.",          tagline: "Boats · Docks · Charter" },
+    trail:    { name: "Wideland RV",            tagline: "Motorhomes · Trailers · Camp" },
+    citrus:   { name: "Sunbelt Motorsports",    tagline: "Powersports · Rentals" }
+  };
+
+  /* ---- theme UI ---- */
+  Object.keys(VitrineTheme.PRESETS).forEach(function (key) {
+    var p = VitrineTheme.PRESETS[key];
+    var b = document.createElement("button");
+    b.className = "theme";
+    b.type = "button";
+    b.setAttribute("aria-pressed", key === currentTheme ? "true" : "false");
+    b.dataset.key = key;
+
+    var sw = document.createElement("span");
+    sw.className = "swatch";
+    sw.style.background = p.accent;
+    b.appendChild(sw);
+
+    var txt = document.createElement("span");
+    txt.appendChild(document.createTextNode(p.label));
+    var small = document.createElement("small");
+    small.textContent = p.accent + " · " + p.radius + "px";
+    txt.appendChild(small);
+    b.appendChild(txt);
+
+    b.addEventListener("click", function () { setTheme(key); });
+    themesEl.appendChild(b);
+  });
+
+  function setTheme(key) {
+    currentTheme = key;
+    Array.prototype.forEach.call(themesEl.children, function (c) {
+      c.setAttribute("aria-pressed", c.dataset.key === key ? "true" : "false");
+    });
+    var preset = VitrineTheme.PRESETS[key];
+    var res = VitrineTheme.apply(device, preset, scheme);
+    paintReport(res.report);
+
+    var brand = BRANDS[key];
+    if (widget) {
+      widget.logo.textContent = preset.logoText;
+      widget.titleText.nodeValue = brand.name;
+      widget.logo.nextSibling.querySelector("span").textContent = brand.tagline;
+    }
+  }
+
+  function paintReport(rows) {
+    reportEl.textContent = "";
+    rows.forEach(function (r) {
+      var li = document.createElement("li");
+      var st = document.createElement("span");
+      st.className = "st " + r.status;
+      st.textContent = r.status;
+      li.appendChild(st);
+      var box = document.createElement("span");
+      var k = document.createElement("span");
+      k.className = "rk";
+      k.textContent = r.check;
+      box.appendChild(k);
+      var d = document.createElement("span");
+      d.className = "rd";
+      d.textContent = r.detail;
+      box.appendChild(d);
+      li.appendChild(box);
+      reportEl.appendChild(li);
+    });
+  }
+
+  /* ---- scheme ---- */
+  var togScheme = document.getElementById("tog-scheme");
+  togScheme.addEventListener("click", function () {
+    scheme = scheme === "light" ? "dark" : "light";
+    document.body.setAttribute("data-scheme", scheme);
+    device.setAttribute("data-vt-scheme", scheme);
+    device.style.background = scheme === "dark" ? "#08080a" : "#fff";
+    togScheme.setAttribute("aria-pressed", scheme === "dark" ? "true" : "false");
+    togScheme.textContent = scheme === "dark" ? "Light mode" : "Dark mode";
+    setTheme(currentTheme);
+  });
+
+  /* ---- widget ---- */
+  var widget = new Vitrine(device, {
+    planner: new VitrinePlanner.MockPlanner(),
+    brandName: BRANDS.graphite.name,
+    brandTagline: BRANDS.graphite.tagline,
+    logoText: VitrineTheme.PRESETS.graphite.logoText,
+    suggestions: [
+      "Motorcycles under $12,000",
+      "A boat the whole family fits in",
+      "Compare the MT-09 and the Z900",
+      "What's my trade worth?"
+    ],
+    onEvent: function (e) {
+      if (e.type === "user_message") lastBlocks = [];
+      if (e.type === "block_rejected") {
+        lastBlocks.push({ REJECTED: e.component, errors: e.errors });
+        paintWire();
+      }
+    }
+  });
+
+  // Tap the planner so the inspector shows the real payload without the
+  // runtime needing to know an inspector exists.
+  function instrument(planner) {
+    var orig = planner.plan.bind(planner);
+    planner.plan = function (msg, state, hist) {
+      return Promise.resolve(orig(msg, state, hist)).then(function (blocks) {
+        lastBlocks = blocks;
+        paintWire();
+        return blocks;
+      });
+    };
+    return planner;
+  }
+  instrument(widget.planner);
+
+  function paintWire() {
+    if (!lastBlocks || !lastBlocks.length) {
+      wireEl.textContent = "";
+      var s = document.createElement("span");
+      s.className = "wire-empty";
+      s.textContent = "No components emitted for that turn.";
+      wireEl.appendChild(s);
+      return;
+    }
+    wireEl.textContent = JSON.stringify(lastBlocks, null, 2);
+  }
+
+  document.getElementById("tog-reset").addEventListener("click", function () {
+    widget.reset();
+  });
+
+  /* ---- live planner ---- */
+  document.getElementById("usekey").addEventListener("click", function () {
+    var key = document.getElementById("apikey").value.trim();
+    if (!key) { document.getElementById("apikey").focus(); return; }
+    widget.planner = instrument(new VitrinePlanner.LivePlanner({ provider: "anthropic", apiKey: key }));
+    noteEl.textContent = "Live planner · registry bound as tools";
+    widget.reset();
+  });
+
+  setTheme("graphite");
+  widget.open();
+})();
+</script>
+</body>
+</html>
