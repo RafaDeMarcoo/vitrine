@@ -46,9 +46,9 @@
 :root {
   /* ---- WRITABLE: the tenant surface. Five knobs. ----
      Five rather than four because a real design system turned up and needed
-     the fifth: Spoken's accent is a high-chroma lime that only works with its
+     the fifth: Spoken's warm yellow accent only works with its
      own dark ink on top. A brand's dark neutral is part of the brand. */
-  --vt-accent:      #c9e64a;
+  --vt-accent:      #e8d83f;
   --vt-ink:         #222631;
   --vt-radius:      8px;
   --vt-font:        Archivo, "Archivo Condensed", -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, system-ui, sans-serif;
@@ -58,15 +58,14 @@
   /* ---- Derived by theme.js. Do not set by hand. ----
      --vt-accent      the brand colour, for FILLS
      --vt-accent-text the same hue pushed until it clears AA against the page,
-                      for accent-coloured TEXT. #c9e64a is 1.41:1 on white —
-                      as body copy it is invisible. Spoken solves this in its
-                      own palette with primary50 #757D00; the gate does the
-                      same thing automatically for any tenant.
+                      for accent-coloured TEXT. #e8d83f is 1.47:1 on white —
+                      as body copy it is invisible. The gate derives a darker
+                      step automatically for any tenant.
      --vt-on-accent   ink or white on the fill, chosen by measured contrast */
-  --vt-accent-text: #5f6f10;
+  --vt-accent-text: #886c2c;
   --vt-on-accent:   #222631;
-  --vt-accent-soft: rgba(201, 230, 74, 0.16);
-  --vt-accent-ring: rgba(201, 230, 74, 0.42);
+  --vt-accent-soft: rgba(232, 216, 63, 0.16);
+  --vt-accent-ring: rgba(232, 216, 63, 0.42);
 
   /* ---- Type: Spoken's scale, in rem so browser text scaling works.
      Fixed px silently ignores the user's accessibility setting. ---- */
@@ -146,7 +145,7 @@
   --vt-hairline-2:  #26292c;
   --vt-track:       #34383c;
   --vt-shadow-lift: 0 2px 12px rgba(0, 0, 0, .6);
-  --vt-accent-soft: rgba(201, 230, 74, 0.14);
+  --vt-accent-soft: rgba(232, 216, 63, 0.14);
 }
 
 /* ---- Three accessibility signals, answered independently. Treating them as
@@ -550,7 +549,7 @@
 }
 .vt-cmp tbody th { font-size: var(--vt-t-small); font-weight: 400; color: var(--vt-ink-3); width: 34%; letter-spacing: var(--vt-tr-caption); }
 .vt-cmp td { font-variant-numeric: tabular-nums; color: var(--vt-ink); }
-/* Accent as TEXT uses the contrast-corrected token. With a lime accent this
+/* Accent as TEXT uses the contrast-corrected token. With a light amber accent this
    is the entire difference between a readable cell and a blank one. */
 .vt-cmp td.best { color: var(--vt-accent-text); font-weight: 600; }
 .vt-cmp-wrap { overflow-x: auto; padding: var(--vt-s0) 0 var(--vt-s1); }

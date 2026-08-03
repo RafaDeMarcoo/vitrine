@@ -19,7 +19,7 @@ let ink = NSColor(calibratedRed: 0.075, green: 0.082, blue: 0.098, alpha: 1)
 let paper = NSColor(calibratedRed: 0.965, green: 0.957, blue: 0.925, alpha: 1)
 let surface = NSColor(calibratedRed: 0.992, green: 0.990, blue: 0.978, alpha: 1)
 let muted = NSColor(calibratedRed: 0.36, green: 0.37, blue: 0.40, alpha: 1)
-let lime = NSColor(calibratedRed: 0.76, green: 0.92, blue: 0.20, alpha: 1)
+let warmYellow = NSColor(calibratedRed: 232 / 255, green: 216 / 255, blue: 63 / 255, alpha: 1)
 let violet = NSColor(calibratedRed: 0.49, green: 0.17, blue: 0.78, alpha: 1)
 let darkScreen = NSColor(calibratedWhite: 0.025, alpha: 1)
 
@@ -37,7 +37,7 @@ let sceneDefinitions: [(
     "GENERATIVE COMMERCE",
     "Let the product\nanswer.",
     "Typed inventory cards, chosen by the model — never improvised markup.",
-    lime,
+    warmYellow,
     surface,
     ink
   ),
@@ -46,7 +46,7 @@ let sceneDefinitions: [(
     "COMPLIANCE BY CONSTRUCTION",
     "Numbers that\nstay honest.",
     "Interactive financing with the disclosure structurally attached.",
-    lime,
+    warmYellow,
     surface,
     ink
   ),

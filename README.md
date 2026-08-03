@@ -159,13 +159,13 @@ Its first run found six violations in a UI that looked fine, including secondary
 
 ## The contrast gate, with a real brand colour
 
-Spoken's accent is a lime. Against white it measures **1.41:1** — as body copy it is not dim, it is invisible. Spoken solves this in its own palette by keeping a second, darker step (`primary50`) for accent-coloured text.
+Spoken's accent is a warm yellow. Against white it measures **1.47:1** — as body copy it is not dim, it is invisible. Spoken pairs it with `#886C2C`, a darker token for accent-coloured text.
 
 The gate does that automatically for any tenant, and the demo shows all three outcomes at once:
 
-- **Fills keep the real brand colour.** The lime button is the lime.
-- **Accent text gets a derived step.** The same hue pushed 48% darker until it clears AA, so a highlighted table cell is readable without stopping being the brand.
-- **What sits on the fill is measured, not assumed.** The tenant's own ink `#222631` scores 10.72:1 on the lime, so it wins over black or white. That is the look the brand designed; the gate only overrides it when it fails.
+- **Fills keep the real brand colour.** The yellow button stays `#E8D83F`.
+- **Accent text uses the accessible token.** `#886C2C` scores 4.97:1 on white, so highlighted text clears AA without losing the warm palette.
+- **What sits on the fill is measured, not assumed.** The tenant's own ink `#222631` scores 10.31:1 on the yellow, so it wins over black or white. That is the look the brand designed; the gate only overrides it when it fails.
 
 This is why the tenant surface is five tokens rather than four. A high-chroma accent only works with a specific dark neutral on top of it, and that neutral is part of the brand, not a host decision.
 

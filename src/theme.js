@@ -81,7 +81,8 @@
   const PRESETS = {
     spoken: {
       label: "Spoken",
-      accent: "#c9e64a",
+      accent: "#e8d83f",
+      accentText: "#886c2c",
       ink: "#222631",
       radius: 8,
       font: 'Archivo, "Archivo Condensed", -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, system-ui, sans-serif',
@@ -132,9 +133,20 @@
     }
 
     const rawRatio = contrast(accent, surface);
-    const fixed = ensureReadable(accent, surface, 4.5, isDark ? WHITE : BLACK);
+    const suppliedAccentText = hexToRgb(theme.accentText);
+    const suppliedRatio = suppliedAccentText ? contrast(suppliedAccentText, surface) : 0;
+    const fixed = suppliedAccentText && suppliedRatio >= 4.5
+      ? { color: suppliedAccentText, steps: 0, supplied: true }
+      : ensureReadable(accent, surface, 4.5, isDark ? WHITE : BLACK);
 
-    if (fixed.steps === 0) {
+    if (fixed.supplied) {
+      report.push({
+        check: "accent on surface",
+        status: "ADJUSTED",
+        detail: "brand " + rawRatio.toFixed(2) + ":1 was below AA; accessible token " +
+                rgbToHex(fixed.color) + " selected at " + suppliedRatio.toFixed(2) + ":1. Fills keep the original."
+      });
+    } else if (fixed.steps === 0) {
       report.push({ check: "accent on surface", status: "PASS", detail: "contrast " + rawRatio.toFixed(2) + ":1 (AA needs 4.5)" });
     } else if (fixed.exhausted) {
       report.push({ check: "accent on surface", status: "FAIL", detail: "could not reach 4.5:1 — accent text disabled, marks only" });
@@ -151,8 +163,8 @@
        The tenant supplies a dark neutral; we use it on the fill when it is
        legible there, because a brand's own ink on its own accent is the look
        the brand designed. Only when it fails do we fall back to measured
-       black or white. Spoken's lime with its #222631 ink is exactly this
-       case: 10.7:1, far better than either default. */
+       black or white. Spoken's warm yellow with its #222631 ink is exactly this
+       case: 10.31:1, far better than either default. */
     let ink = hexToRgb(theme.ink);
     if (!ink) ink = isDark ? { r: 242, g: 243, b: 245 } : { r: 34, g: 38, b: 49 };
 
