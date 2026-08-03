@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="docs/assets/readme/vitrine-showcase-refined.gif?v=pale-dark" alt="Vitrine UI in dark mode with the Pale theme: eight typed interactions from first choice to final booking receipt" width="100%">
+  <img src="docs/assets/readme/vitrine-showcase-refined.gif?v=eight-step-light" alt="Vitrine UI in motion: eight typed interactions from first choice to final booking receipt" width="100%">
 </p>
 
 <h1 align="center">Vitrine UI</h1>
@@ -28,6 +28,16 @@
 <p align="center">
   <sub>GENERATIVE INVENTORY &nbsp;·&nbsp; COMPLIANT FINANCING &nbsp;·&nbsp; WHITE-LABEL RUNTIME</sub><br>
   <sub>Reviewed product states from the running demo, not reconstructed mockups.</sub>
+</p>
+
+<h3 align="center">Watch the conversation build</h3>
+
+<p align="center">
+  <img src="docs/assets/readme/vitrine-chat-pale-dark.gif?v=typed-chat" alt="A customer typing into Vitrine in Dark mode with the Pale theme while the conversation fills with inventory, comparison and financing components" width="42%">
+</p>
+
+<p align="center">
+  <sub>Actual browser capture · user typing · streamed responses · Dark + Pale</sub>
 </p>
 
 ---

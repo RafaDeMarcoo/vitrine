@@ -3,3 +3,4 @@ node_modules/
 *.log
 _to_delete/
 _payload.zip
+docs/assets/readme/.chat-frames/

@@ -70,56 +70,56 @@ let conversationDefinitions: [SceneDefinition] = [
     "01 / CHOICE CHIPS",
     "Ask less.\nChoose faster.",
     "Useful next steps arrive as trusted controls, not another paragraph.",
-    paleYellow, darkScreen, NSColor.white
+    warmYellow, surface, ink
   ),
   (
     "vitrine-unit-carousel.png",
     "02 / INVENTORY CAROUSEL",
     "The floor,\nin the thread.",
     "Live inventory becomes a draggable, typed product surface with real photography.",
-    paleYellow, darkScreen, NSColor.white
+    warmYellow, surface, ink
   ),
   (
     "vitrine-unit-compare.png",
     "03 / UNIT COMPARE",
     "Side by side,\nthen.",
     "The model selects the comparison; the renderer owns every row and value.",
-    paleYellow, darkScreen, NSColor.white
+    warmYellow, surface, ink
   ),
   (
     "vitrine-finance-slider.png",
     "04 / FINANCE SLIDER",
     "Payments with\nthe fine print.",
     "Interactive terms and Regulation Z disclosures stay structurally attached.",
-    paleYellow, darkScreen, NSColor.white
+    warmYellow, surface, ink
   ),
   (
     "vitrine-trade-in.png",
     "05 / TRADE-IN",
     "A number before\na lead form.",
     "Give value first: an indicative range without demanding contact details.",
-    paleYellow, darkScreen, NSColor.white
+    warmYellow, surface, ink
   ),
   (
     "vitrine-schedule.png",
     "06 / SCHEDULING",
     "Pick a slot.\nKeep moving.",
     "Availability becomes the next turn instead of sending the buyer elsewhere.",
-    paleYellow, darkScreen, NSColor.white
+    warmYellow, surface, ink
   ),
   (
     "vitrine-lead-capture.png",
     "07 / LEAD CAPTURE",
     "Contact details,\nasked last.",
     "The form appears only after the buyer has chosen something concrete.",
-    paleYellow, darkScreen, NSColor.white
+    warmYellow, surface, ink
   ),
   (
     "vitrine-summary-receipt.png",
     "08 / RECEIPT",
     "Booked without\na detour.",
     "The final state carries the unit, appointment and customer into one receipt.",
-    paleYellow, darkScreen, NSColor.white
+    warmYellow, surface, ink
   ),
 ]
 
@@ -530,6 +530,67 @@ for preview in devicePreviews {
     renderDevicePreview(preview.0),
     to: assetDirectory.appendingPathComponent(preview.1)
   )
+}
+
+let chatFrameDirectory = assetDirectory.appendingPathComponent(".chat-frames")
+let chatFrameURLs = try FileManager.default.contentsOfDirectory(
+  at: chatFrameDirectory,
+  includingPropertiesForKeys: nil
+).filter { $0.pathExtension.lowercased() == "png" }
+ .sorted { $0.lastPathComponent < $1.lastPathComponent }
+
+guard !chatFrameURLs.isEmpty else {
+  throw NSError(domain: "VitrineReadmeMedia", code: 6, userInfo: [
+    NSLocalizedDescriptionKey: "No typed-conversation frames found at \(chatFrameDirectory.path)",
+  ])
+}
+
+let chatGIFURL = assetDirectory.appendingPathComponent("vitrine-chat-pale-dark.gif")
+guard let chatDestination = CGImageDestinationCreateWithURL(
+  chatGIFURL as CFURL,
+  UTType.gif.identifier as CFString,
+  chatFrameURLs.count,
+  nil
+) else {
+  throw NSError(domain: "VitrineReadmeMedia", code: 7)
+}
+CGImageDestinationSetProperties(chatDestination, [
+  kCGImagePropertyGIFDictionary: [kCGImagePropertyGIFLoopCount: 0],
+] as CFDictionary)
+
+for frameURL in chatFrameURLs {
+  guard let source = NSImage(contentsOf: frameURL) else { continue }
+  let durationPart = frameURL.deletingPathExtension().lastPathComponent.split(separator: "-").last
+  let durationMs = Double(durationPart ?? "140") ?? 140
+  let scene = Scene(
+    image: source,
+    eyebrow: "",
+    title: "",
+    detail: "",
+    accent: paleYellow,
+    screenFill: darkScreen,
+    screenChrome: NSColor.white
+  )
+  let rendered = NSImage(size: NSSize(width: 500, height: 950), flipped: true) { bounds in
+    paper.setFill()
+    bounds.fill()
+    drawIPhone16Pro(
+      scene: scene,
+      next: nil,
+      progress: 0,
+      in: NSRect(x: 35, y: 25, width: 430, height: 900)
+    )
+    return true
+  }
+  CGImageDestinationAddImage(
+    chatDestination,
+    try cgImage(rendered),
+    [kCGImagePropertyGIFDictionary: [kCGImagePropertyGIFDelayTime: durationMs / 1000]] as CFDictionary
+  )
+}
+
+guard CGImageDestinationFinalize(chatDestination) else {
+  throw NSError(domain: "VitrineReadmeMedia", code: 8)
 }
 
 print("Generated Vitrine README media in \(assetDirectory.path)")
