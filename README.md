@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="docs/assets/readme/vitrine-showcase-refined.gif" alt="Vitrine UI in motion: generative inventory, compliant financing and a white-label dark theme" width="100%">
+  <img src="docs/assets/readme/vitrine-showcase-refined.gif?v=liquid-glass" alt="Vitrine UI in motion: eight typed interactions from first choice to final booking receipt" width="100%">
 </p>
 
 <h1 align="center">Vitrine UI</h1>
@@ -20,9 +20,9 @@
 </p>
 
 <p align="center">
-  <img src="docs/assets/readme/vitrine-inventory-iphone16-pro.png" alt="Vitrine rendering typed inventory inside a sales conversation, presented in an iPhone 16 Pro frame" width="31%">
-  <img src="docs/assets/readme/vitrine-finance-iphone16-pro.png" alt="Vitrine rendering interactive financing with its disclosure attached, presented in an iPhone 16 Pro frame" width="31%">
-  <img src="docs/assets/readme/vitrine-white-label-iphone16-pro.png" alt="Vitrine rendering a white-label marine inventory conversation in dark mode, presented in an iPhone 16 Pro frame" width="31%">
+  <img src="docs/assets/readme/vitrine-inventory-iphone16-pro.png?v=liquid-glass" alt="Vitrine rendering typed inventory inside a sales conversation, presented in an iPhone 16 Pro frame" width="31%">
+  <img src="docs/assets/readme/vitrine-finance-iphone16-pro.png?v=liquid-glass" alt="Vitrine rendering interactive financing with its disclosure attached, presented in an iPhone 16 Pro frame" width="31%">
+  <img src="docs/assets/readme/vitrine-white-label-iphone16-pro.png?v=liquid-glass" alt="Vitrine rendering a white-label marine inventory conversation in dark mode, presented in an iPhone 16 Pro frame" width="31%">
 </p>
 
 <p align="center">

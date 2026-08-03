@@ -45,6 +45,38 @@ async function capture(page, fileName) {
   await page.locator("#device").screenshot({ path: path.join(output, fileName) });
 }
 
+async function captureConversation(page) {
+  await prepare(page);
+  await capture(page, "vitrine-choice-chips.png");
+
+  await send(page, "Motorcycles under $12,000");
+  await capture(page, "vitrine-unit-carousel.png");
+
+  await send(page, "Compare the Yamaha MT-09, Kawasaki Z900 and Moto Guzzi V7");
+  await capture(page, "vitrine-unit-compare.png");
+
+  await send(page, "What are the monthly payments on the Moto Guzzi V7?");
+  await capture(page, "vitrine-finance-slider.png");
+
+  await send(page, "What's my current bike worth as a trade-in?");
+  await capture(page, "vitrine-trade-in.png");
+
+  await send(page, "I'd like to book a visit");
+  await capture(page, "vitrine-schedule.png");
+
+  await page.locator(".vt-slot:not([disabled])").first().click();
+  await settle(page);
+  await capture(page, "vitrine-lead-capture.png");
+
+  const form = page.locator(".vt-card form").last();
+  await form.locator('input[name="name"]').fill("Alex Moreno");
+  await form.locator('input[name="phone"]').fill("(555) 012-8899");
+  await form.locator('input[name="email"]').fill("alex@example.com");
+  await form.getByRole("button", { name: "Confirm booking" }).click();
+  await settle(page);
+  await capture(page, "vitrine-summary-receipt.png");
+}
+
 (async () => {
   const browser = await chromium.launch();
   const page = await browser.newPage({ viewport: { width: 1280, height: 1100 }, deviceScaleFactor: 1 });
@@ -62,6 +94,8 @@ async function capture(page, fileName) {
     await page.locator("#tog-scheme").click();
     await send(page, "A boat the whole family fits in");
     await capture(page, "vitrine-white-label.png");
+
+    await captureConversation(page);
   } finally {
     await browser.close();
   }

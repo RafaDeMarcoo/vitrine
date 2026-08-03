@@ -23,7 +23,7 @@ let warmYellow = NSColor(calibratedRed: 232 / 255, green: 216 / 255, blue: 63 / 
 let violet = NSColor(calibratedRed: 0.49, green: 0.17, blue: 0.78, alpha: 1)
 let darkScreen = NSColor(calibratedWhite: 0.025, alpha: 1)
 
-let sceneDefinitions: [(
+typealias SceneDefinition = (
   fileName: String,
   eyebrow: String,
   title: String,
@@ -31,7 +31,9 @@ let sceneDefinitions: [(
   accent: NSColor,
   screenFill: NSColor,
   screenChrome: NSColor
-)] = [
+)
+
+let productDefinitions: [SceneDefinition] = [
   (
     "vitrine-inventory.png",
     "GENERATIVE COMMERCE",
@@ -61,7 +63,67 @@ let sceneDefinitions: [(
   ),
 ]
 
-let scenes = try sceneDefinitions.map { definition in
+let conversationDefinitions: [SceneDefinition] = [
+  (
+    "vitrine-choice-chips.png",
+    "01 / CHOICE CHIPS",
+    "Ask less.\nChoose faster.",
+    "Useful next steps arrive as trusted controls, not another paragraph.",
+    warmYellow, surface, ink
+  ),
+  (
+    "vitrine-unit-carousel.png",
+    "02 / INVENTORY CAROUSEL",
+    "The floor,\nin the thread.",
+    "Live inventory becomes a draggable, typed product surface with real photography.",
+    warmYellow, surface, ink
+  ),
+  (
+    "vitrine-unit-compare.png",
+    "03 / UNIT COMPARE",
+    "Side by side,\nthen.",
+    "The model selects the comparison; the renderer owns every row and value.",
+    warmYellow, surface, ink
+  ),
+  (
+    "vitrine-finance-slider.png",
+    "04 / FINANCE SLIDER",
+    "Payments with\nthe fine print.",
+    "Interactive terms and Regulation Z disclosures stay structurally attached.",
+    warmYellow, surface, ink
+  ),
+  (
+    "vitrine-trade-in.png",
+    "05 / TRADE-IN",
+    "A number before\na lead form.",
+    "Give value first: an indicative range without demanding contact details.",
+    warmYellow, surface, ink
+  ),
+  (
+    "vitrine-schedule.png",
+    "06 / SCHEDULING",
+    "Pick a slot.\nKeep moving.",
+    "Availability becomes the next turn instead of sending the buyer elsewhere.",
+    warmYellow, surface, ink
+  ),
+  (
+    "vitrine-lead-capture.png",
+    "07 / LEAD CAPTURE",
+    "Contact details,\nasked last.",
+    "The form appears only after the buyer has chosen something concrete.",
+    warmYellow, surface, ink
+  ),
+  (
+    "vitrine-summary-receipt.png",
+    "08 / RECEIPT",
+    "Booked without\na detour.",
+    "The final state carries the unit, appointment and customer into one receipt.",
+    warmYellow, surface, ink
+  ),
+]
+
+func loadScenes(_ definitions: [SceneDefinition]) throws -> [Scene] {
+  try definitions.map { definition in
   let sourceURL = assetDirectory.appendingPathComponent(definition.fileName)
   guard let source = NSImage(contentsOf: sourceURL) else {
     throw NSError(domain: "VitrineReadmeMedia", code: 1, userInfo: [
@@ -77,10 +139,14 @@ let scenes = try sceneDefinitions.map { definition in
     screenFill: definition.screenFill,
     screenChrome: definition.screenChrome
   )
+  }
 }
 
+let productScenes = try loadScenes(productDefinitions)
+let scenes = try loadScenes(conversationDefinitions)
+
 let canvas = NSSize(width: 1200, height: 675)
-let sceneHoldDuration = 2.5
+let sceneHoldDuration = 1.8
 
 func drawText(
   _ value: String,
@@ -454,9 +520,9 @@ if let poster {
 }
 
 let devicePreviews = [
-  (scenes[0], "vitrine-inventory-iphone16-pro.png"),
-  (scenes[1], "vitrine-finance-iphone16-pro.png"),
-  (scenes[2], "vitrine-white-label-iphone16-pro.png"),
+  (productScenes[0], "vitrine-inventory-iphone16-pro.png"),
+  (productScenes[1], "vitrine-finance-iphone16-pro.png"),
+  (productScenes[2], "vitrine-white-label-iphone16-pro.png"),
 ]
 for preview in devicePreviews {
   try writePNG(

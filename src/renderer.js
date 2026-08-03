@@ -210,19 +210,43 @@
 
     card.appendChild(rail);
 
+    const dots = el("div", "vt-carousel-dots");
+    dots.setAttribute("aria-label", "Carousel position");
+    const dotEls = props.units.map((u, i) => {
+      const dot = el("span", "vt-carousel-dot");
+      dot.setAttribute("aria-hidden", "true");
+      dot.setAttribute("data-active", i === 0 ? "true" : "false");
+      dots.appendChild(dot);
+      return dot;
+    });
+    card.appendChild(dots);
+
+    function snapPoints() {
+      const pad = parseFloat(getComputedStyle(track).paddingLeft) || 0;
+      return Array.prototype.map.call(track.children, (c) => -(c.offsetLeft - pad));
+    }
+
+    function paintDots(x) {
+      const points = snapPoints();
+      if (!points.length) return;
+      let active = 0;
+      points.forEach((p, i) => {
+        if (Math.abs(p - x) < Math.abs(points[active] - x)) active = i;
+      });
+      dotEls.forEach((dot, i) => dot.setAttribute("data-active", i === active ? "true" : "false"));
+    }
+
     if (M) {
       // Snap points are the left edge of each card, so a flick always comes to
       // rest with a card aligned to the rail rather than half-clipped.
       M.dragScroll(rail, track, {
-        snap: function () {
-          const pad = parseFloat(getComputedStyle(track).paddingLeft) || 0;
-          return Array.prototype.map.call(track.children, (c) => -(c.offsetLeft - pad));
-        }
+        snap: snapPoints,
+        onChange: paintDots
       });
     }
     return card;
   };
-  R.unit_carousel.height = 328;
+  R.unit_carousel.height = 348;
 
   /* ---------------------------------------------------------------- */
   R.unit_compare = function (props) {

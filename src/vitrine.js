@@ -32,6 +32,50 @@
   const arrive = (node, opts) =>
     M ? M.materialize(node, opts) : Promise.resolve();
 
+  /* A procedural displacement map gives the fixed chrome a refracted edge.
+     It lives inside each widget so the package remains dependency-free and
+     multiple Vitrine instances do not depend on host-page SVG definitions. */
+  function liquidFilter() {
+    const ns = "http://www.w3.org/2000/svg";
+    const svg = document.createElementNS(ns, "svg");
+    svg.classList.add("vt-liquid-defs");
+    svg.setAttribute("aria-hidden", "true");
+    svg.setAttribute("focusable", "false");
+
+    const defs = document.createElementNS(ns, "defs");
+    const filter = document.createElementNS(ns, "filter");
+    filter.setAttribute("id", "vt-liquid-distortion");
+    filter.setAttribute("x", "-20%"); filter.setAttribute("y", "-20%");
+    filter.setAttribute("width", "140%"); filter.setAttribute("height", "140%");
+    filter.setAttribute("color-interpolation-filters", "sRGB");
+
+    const noise = document.createElementNS(ns, "feTurbulence");
+    noise.setAttribute("type", "fractalNoise");
+    noise.setAttribute("baseFrequency", "0.008 0.035");
+    noise.setAttribute("numOctaves", "2");
+    noise.setAttribute("seed", "11");
+    noise.setAttribute("result", "noise");
+
+    const soften = document.createElementNS(ns, "feGaussianBlur");
+    soften.setAttribute("in", "noise");
+    soften.setAttribute("stdDeviation", "1.4");
+    soften.setAttribute("result", "map");
+
+    const displace = document.createElementNS(ns, "feDisplacementMap");
+    displace.setAttribute("in", "SourceGraphic");
+    displace.setAttribute("in2", "map");
+    displace.setAttribute("scale", "18");
+    displace.setAttribute("xChannelSelector", "R");
+    displace.setAttribute("yChannelSelector", "G");
+
+    filter.appendChild(noise);
+    filter.appendChild(soften);
+    filter.appendChild(displace);
+    defs.appendChild(filter);
+    svg.appendChild(defs);
+    return svg;
+  }
+
   function Vitrine(root, opts) {
     opts = opts || {};
     this.root = root;
@@ -50,6 +94,7 @@
     const r = this.root;
     r.textContent = "";
     r.classList.add("vt");
+    r.appendChild(liquidFilter());
 
     const header = document.createElement("div");
     header.className = "vt-header";

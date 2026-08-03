@@ -1,9 +1,10 @@
 /* ==========================================================================
    Vitrine UI — design system
    --------------------------------------------------------------------------
-   Ported from the Spoken design system (spoken_ui, Flutter). This is not an
-   Apple pastiche any more: Spoken is flat, geometric and typographically
-   loud, and those are different decisions from Cupertino's soft depth.
+   Ported from the Spoken design system (spoken_ui, Flutter). The component
+   surfaces stay flat and typographic; only the floating app chrome becomes
+   a Vitrine lens, so liquid glass remains a functional material rather than
+   decoration applied to everything.
 
    What came across from spoken_ui, and where it lives there:
 
@@ -126,6 +127,25 @@
   --vt-shadow-lift: 0 2px 10px rgba(34, 38, 49, .09);
   --vt-shadow-press:0 3px 8px rgba(0, 0, 0, .28);
 
+  /* ---- Liquid lens. A nearly clear centre plus a deep bevel reads as glass;
+     high-opacity white fills read as frosted cards. The SVG displacement map
+     is installed by vitrine.js and the blur/saturation pair is its fallback. ---- */
+  --vt-material: rgba(255, 255, 255, .26);
+  --vt-material-row: rgba(255, 255, 255, .62);
+  --vt-material-panel: rgba(255, 255, 255, .76);
+  --vt-material-edge: rgba(255, 255, 255, .70);
+  --vt-material-filter: url(#vt-liquid-distortion) blur(3px) saturate(1.32);
+  --vt-material-panel-filter: blur(13px) saturate(1.18);
+  --vt-material-shadow:
+    0 16px 34px rgba(30, 36, 48, .14),
+    inset 0 0 0 1px rgba(255, 255, 255, .46),
+    inset 0 2px 2px rgba(255, 255, 255, .74),
+    inset 2px 0 3px rgba(88, 214, 255, .13),
+    inset -2px 0 3px rgba(255, 91, 151, .09);
+  --vt-material-shadow-soft:
+    0 8px 22px rgba(30, 36, 48, .10),
+    inset 0 1px 0 rgba(255, 255, 255, .76);
+
   /* ---- Shape: 6 on controls, 8 on cards, 16 on large surfaces. ---- */
   --vt-radius-ctl: max(4px, calc(var(--vt-radius) - 2px));
   --vt-radius-lg:  calc(var(--vt-radius) * 2);
@@ -146,6 +166,19 @@
   --vt-track:       #34383c;
   --vt-shadow-lift: 0 2px 12px rgba(0, 0, 0, .6);
   --vt-accent-soft: rgba(232, 216, 63, 0.14);
+  --vt-material: rgba(12, 14, 17, .34);
+  --vt-material-row: rgba(18, 21, 25, .62);
+  --vt-material-panel: rgba(23, 26, 30, .78);
+  --vt-material-edge: rgba(255, 255, 255, .22);
+  --vt-material-shadow:
+    0 18px 38px rgba(0, 0, 0, .38),
+    inset 0 0 0 1px rgba(255, 255, 255, .22),
+    inset 0 2px 2px rgba(255, 255, 255, .28),
+    inset 2px 0 3px rgba(83, 207, 255, .12),
+    inset -2px 0 3px rgba(255, 87, 145, .08);
+  --vt-material-shadow-soft:
+    0 9px 24px rgba(0, 0, 0, .30),
+    inset 0 1px 0 rgba(255, 255, 255, .16);
 }
 
 /* ---- Three accessibility signals, answered independently. Treating them as
@@ -162,7 +195,13 @@
 }
 
 @media (prefers-reduced-transparency: reduce) {
-  :root { --vt-material: var(--vt-surface); --vt-material-blur: none; }
+  :root {
+    --vt-material: var(--vt-surface);
+    --vt-material-row: var(--vt-surface);
+    --vt-material-panel: var(--vt-surface);
+    --vt-material-filter: none;
+    --vt-material-panel-filter: none;
+  }
 }
 
 @media (prefers-contrast: more) {
@@ -192,21 +231,58 @@
   position: relative;
   -webkit-font-smoothing: antialiased;
   -webkit-tap-highlight-color: transparent;
+  overflow: hidden;
 }
 
-/* Chrome is opaque and separated by a hairline. Spoken has no translucency
-   and no elevation in its chrome, so the glass from the previous pass is
-   gone — that was Cupertino's idea, not this system's. */
+.vt-liquid-defs {
+  position: absolute;
+  width: 0; height: 0;
+  overflow: hidden;
+}
+
+/* The thread scrolls below the fixed lenses. This gives the displacement map
+   actual photography, type and cards to refract instead of decorative blobs. */
 .vt-header {
   display: flex;
   align-items: center;
   gap: var(--vt-s2);
-  padding: var(--vt-s2) var(--vt-s3);
+  position: absolute;
+  top: var(--vt-s2); left: var(--vt-s2); right: var(--vt-s2);
+  padding: var(--vt-s2);
   min-height: 60px;
-  background: var(--vt-surface);
-  border-bottom: 1px solid var(--vt-hairline);
+  background: var(--vt-material);
+  border: 0;
+  border-radius: calc(var(--vt-radius-lg) + 10px);
+  box-shadow: var(--vt-material-shadow);
+  -webkit-backdrop-filter: var(--vt-material-filter);
+  backdrop-filter: var(--vt-material-filter);
   flex: 0 0 auto;
   z-index: 6;
+  isolation: isolate;
+  overflow: hidden;
+}
+.vt-header::before,
+.vt-composer::before {
+  content: "";
+  position: absolute; inset: 1px;
+  border-radius: inherit;
+  background:
+    radial-gradient(120% 80% at 18% -10%, rgba(255,255,255,.56), transparent 38%),
+    linear-gradient(105deg, transparent 12%, rgba(255,255,255,.16) 46%, transparent 62%);
+  opacity: .62;
+  pointer-events: none;
+}
+.vt-header::after,
+.vt-composer::after {
+  content: "";
+  position: absolute; inset: 0;
+  border-radius: inherit;
+  box-shadow: inset 0 10px 18px -18px rgba(255,255,255,.95);
+  pointer-events: none;
+}
+.vt-header > *, .vt-composer > * {
+  position: relative;
+  z-index: 2;
 }
 .vt-logo {
   width: var(--vt-logo-size);
@@ -225,12 +301,14 @@
 .vt-title {
   font-family: var(--vt-font-title);
   font-size: var(--vt-t-title-sm); font-weight: 600;
+  color: var(--vt-ink);
   letter-spacing: var(--vt-tr-title); line-height: 1.1;
+  text-shadow: 0 1px 1px var(--vt-surface), 0 0 10px var(--vt-surface);
 }
 .vt-title span {
   display: block; font-family: var(--vt-font);
-  font-size: var(--vt-t-small); font-weight: 400;
-  color: var(--vt-ink-3); letter-spacing: var(--vt-tr-caption);
+  font-size: var(--vt-t-small); font-weight: 600;
+  color: var(--vt-ink); letter-spacing: var(--vt-tr-caption);
   line-height: var(--vt-lh-small);
 }
 .vt-header-right { margin-left: auto; display: flex; align-items: center; gap: var(--vt-s1); }
@@ -242,7 +320,8 @@
   letter-spacing: var(--vt-tr-caps);
   text-transform: uppercase;
   color: var(--vt-ink-2);
-  border: 1px solid var(--vt-hairline);
+  border: 1px solid color-mix(in srgb, var(--vt-ink) 13%, transparent);
+  background: var(--vt-surface);
   padding: var(--vt-s0) var(--vt-s1);
   border-radius: var(--vt-radius-ctl);
   white-space: nowrap;
@@ -258,9 +337,12 @@
   min-height: 0;
   overflow-y: auto;
   overflow-x: hidden;
-  padding: var(--vt-s3);
+  padding: 88px var(--vt-s3) 156px;
   scroll-behavior: smooth;
   overscroll-behavior: contain;
+  position: relative;
+  z-index: 1;
+  background: var(--vt-surface-3);
 }
 
 .vt-turn { margin-bottom: var(--vt-s3); }
@@ -283,10 +365,13 @@
   font-weight: 500;
 }
 .vt-bubble.agent {
-  background: var(--vt-surface);
+  background: var(--vt-material-panel);
   color: var(--vt-ink);
-  border: 1px solid var(--vt-hairline);
+  border: 1px solid var(--vt-material-edge);
   border-bottom-left-radius: 2px;
+  box-shadow: var(--vt-material-shadow-soft);
+  -webkit-backdrop-filter: var(--vt-material-panel-filter);
+  backdrop-filter: var(--vt-material-panel-filter);
 }
 .vt-bubble p { margin: 0 0 var(--vt-s1); }
 .vt-bubble p:last-child { margin-bottom: 0; }
@@ -314,14 +399,16 @@
 @keyframes vt-bob { 0%,60%,100% { transform: none; opacity:.4 } 30% { transform: translateY(-4px); opacity:.9 } }
 
 /* ==========================================================================
-   Card chrome — flat, hairline-bounded
+   Card chrome — readable frosted glass
    ========================================================================== */
 
 .vt-card {
-  background: var(--vt-surface);
-  border: 1px solid var(--vt-hairline);
-  border-radius: var(--vt-radius);
-  box-shadow: var(--vt-shadow);
+  background: var(--vt-material-panel);
+  border: 1px solid var(--vt-material-edge);
+  border-radius: calc(var(--vt-radius) + 4px);
+  box-shadow: var(--vt-material-shadow-soft);
+  -webkit-backdrop-filter: var(--vt-material-panel-filter);
+  backdrop-filter: var(--vt-material-panel-filter);
   overflow: hidden;
 }
 .vt-card + .vt-card { margin-top: var(--vt-s2); }
@@ -406,9 +493,12 @@
   min-height: var(--vt-tap);
   padding: var(--vt-s2) var(--vt-s3);
   border-radius: 999px;
-  border: 1px solid var(--vt-hairline);
-  background: var(--vt-surface);
+  border: 1px solid var(--vt-material-edge);
+  background: var(--vt-material-panel);
   color: var(--vt-ink);
+  box-shadow: var(--vt-material-shadow-soft);
+  -webkit-backdrop-filter: var(--vt-material-panel-filter);
+  backdrop-filter: var(--vt-material-panel-filter);
   cursor: pointer;
   transition: background var(--vt-fast) var(--vt-ease), border-color var(--vt-fast) var(--vt-ease);
   touch-action: manipulation;
@@ -465,10 +555,15 @@
 
 .vt-unit {
   flex: 0 0 232px;
-  border: 1px solid var(--vt-hairline);
-  border-radius: var(--vt-radius);
-  background: var(--vt-surface);
+  border: 1px solid var(--vt-material-edge);
+  border-radius: calc(var(--vt-radius) + 6px);
+  background: var(--vt-material-panel);
+  box-shadow: var(--vt-material-shadow-soft);
+  -webkit-backdrop-filter: var(--vt-material-panel-filter);
+  backdrop-filter: var(--vt-material-panel-filter);
   overflow: hidden;
+  position: relative;
+  isolation: isolate;
   display: flex;
   flex-direction: column;
   text-align: left;
@@ -479,7 +574,18 @@
   transition: border-color var(--vt-fast) var(--vt-ease), box-shadow 200ms var(--vt-ease);
   touch-action: inherit;
 }
-.vt-unit:hover { border-color: var(--vt-ink-3); box-shadow: var(--vt-shadow-lift); }
+.vt-unit::after {
+  content: "";
+  position: absolute; inset: 0;
+  border-radius: inherit;
+  box-shadow:
+    inset 0 1px 1px rgba(255,255,255,.78),
+    inset 1px 0 2px rgba(90,214,255,.12),
+    inset -1px 0 2px rgba(255,91,151,.08);
+  pointer-events: none;
+  z-index: 3;
+}
+.vt-unit:hover { border-color: var(--vt-accent); box-shadow: var(--vt-material-shadow); }
 .vt-unit[aria-pressed="true"] { border-color: var(--vt-ink); box-shadow: inset 0 0 0 1px var(--vt-ink); }
 
 .vt-unit-art {
@@ -505,7 +611,12 @@
   color: var(--vt-on-accent);
   line-height: 1.33;
 }
-.vt-unit-body { padding: var(--vt-s2); display: flex; flex-direction: column; gap: var(--vt-s0); flex: 1; }
+.vt-unit-body {
+  padding: var(--vt-s2);
+  display: flex; flex-direction: column; gap: var(--vt-s0); flex: 1;
+  background: linear-gradient(145deg, rgba(255,255,255,.15), transparent 48%);
+  border-top: 1px solid rgba(255,255,255,.42);
+}
 .vt-unit-name {
   font-family: var(--vt-font-title);
   font-size: var(--vt-t-body-lg); font-weight: 600;
@@ -525,6 +636,28 @@
 }
 .vt-rail::before { left: 0;  background: linear-gradient(90deg, var(--vt-surface), transparent); }
 .vt-rail::after  { right: 0; background: linear-gradient(270deg, var(--vt-surface), transparent); }
+
+.vt-carousel-dots {
+  min-height: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--vt-s1);
+  margin: 0 var(--vt-s3) var(--vt-s2);
+}
+.vt-carousel-dot {
+  width: 6px; height: 6px;
+  border-radius: 999px;
+  background: var(--vt-ink-3);
+  opacity: .36;
+  transform: scale(.84);
+  transition: transform var(--vt-fast) var(--vt-ease), opacity var(--vt-fast) var(--vt-ease), background var(--vt-fast) var(--vt-ease);
+}
+.vt-carousel-dot[data-active="true"] {
+  background: var(--vt-accent-text);
+  opacity: 1;
+  transform: scale(1.34);
+}
 
 /* ==========================================================================
    unit_compare
@@ -712,20 +845,29 @@
    ========================================================================== */
 
 .vt-composer {
-  padding: var(--vt-s2) var(--vt-s3) var(--vt-s3);
-  background: var(--vt-surface);
-  border-top: 1px solid var(--vt-hairline);
+  position: absolute;
+  left: var(--vt-s2); right: var(--vt-s2); bottom: var(--vt-s2);
+  padding: var(--vt-s2);
+  background: var(--vt-material);
+  border: 0;
+  border-radius: calc(var(--vt-radius-lg) + 12px);
+  box-shadow: var(--vt-material-shadow);
+  -webkit-backdrop-filter: var(--vt-material-filter);
+  backdrop-filter: var(--vt-material-filter);
   flex: 0 0 auto;
+  z-index: 6;
+  isolation: isolate;
+  overflow: hidden;
 }
 .vt-composer-row {
   display: flex; align-items: flex-end; gap: var(--vt-s1);
-  background: var(--vt-surface);
-  border: 1px solid var(--vt-hairline);
-  border-radius: var(--vt-radius);
+  background: var(--vt-material-row);
+  border: 1px solid rgba(255,255,255,.28);
+  border-radius: calc(var(--vt-radius-lg) + 4px);
   padding: var(--vt-s0) var(--vt-s0) var(--vt-s0) var(--vt-s2);
   transition: border-color var(--vt-fast) var(--vt-ease), box-shadow var(--vt-fast) var(--vt-ease);
 }
-.vt-composer-row:focus-within { border-color: var(--vt-ink); box-shadow: inset 0 0 0 1px var(--vt-ink); }
+.vt-composer-row:focus-within { border-color: var(--vt-accent); box-shadow: 0 0 0 3px var(--vt-accent-ring), inset 0 1px 0 rgba(255,255,255,.32); }
 .vt-composer textarea {
   flex: 1; border: none; outline: none; background: transparent; resize: none;
   font-family: var(--vt-font); font-size: var(--vt-t-body); color: var(--vt-ink);
@@ -757,7 +899,8 @@
   letter-spacing: var(--vt-tr-caption);
   min-height: var(--vt-tap);
   padding: var(--vt-s1) var(--vt-s2); border-radius: 999px;
-  border: 1px solid var(--vt-hairline); background: var(--vt-surface);
+  border: 1px solid rgba(255,255,255,.34); background: var(--vt-material-row);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.22);
   color: var(--vt-ink-2); cursor: pointer;
   transition: background var(--vt-fast) var(--vt-ease), color var(--vt-fast) var(--vt-ease), border-color var(--vt-fast) var(--vt-ease);
   touch-action: manipulation;

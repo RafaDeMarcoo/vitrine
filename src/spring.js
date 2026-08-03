@@ -261,7 +261,7 @@
    *
    * @param {HTMLElement} viewport  the clipping element
    * @param {HTMLElement} track     the moving element
-   * @param {{snap?:function():number[]}} opts
+   * @param {{snap?:function():number[], onChange?:function(number):void}} opts
    */
   function dragScroll(viewport, track, opts) {
     opts = opts || {};
@@ -269,7 +269,11 @@
     const tracker = new VelocityTracker();
 
     const s = new Spring({ damping: 0.9, response: 0.4 });
-    s.onChange = (v) => { x = v; track.style.transform = "translate3d(" + v + "px,0,0)"; };
+    s.onChange = (v) => {
+      x = v;
+      track.style.transform = "translate3d(" + v + "px,0,0)";
+      if (opts.onChange) opts.onChange(v);
+    };
 
     function bounds() {
       min = Math.min(0, viewport.clientWidth - track.scrollWidth);
