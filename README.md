@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="docs/assets/readme/vitrine-showcase.gif" alt="Vitrine UI in motion: generative inventory, compliant financing and a white-label dark theme" width="100%">
+  <img src="docs/assets/readme/vitrine-showcase-refined.gif" alt="Vitrine UI in motion: generative inventory, compliant financing and a white-label dark theme" width="100%">
 </p>
 
 <h1 align="center">Vitrine UI</h1>
@@ -27,7 +27,7 @@
 
 <p align="center">
   <sub>GENERATIVE INVENTORY &nbsp;·&nbsp; COMPLIANT FINANCING &nbsp;·&nbsp; WHITE-LABEL RUNTIME</sub><br>
-  <sub>Real product states — cropped reproducibly from the running demo, not reconstructed mockups.</sub>
+  <sub>Reviewed product states from the running demo, not reconstructed mockups.</sub>
 </p>
 
 ---

@@ -399,7 +399,7 @@ try FileManager.default.createDirectory(
   withIntermediateDirectories: true
 )
 
-let gifURL = assetDirectory.appendingPathComponent("vitrine-showcase.gif")
+let gifURL = assetDirectory.appendingPathComponent("vitrine-showcase-refined.gif")
 guard let destination = CGImageDestinationCreateWithURL(
   gifURL as CFURL,
   UTType.gif.identifier as CFString,
