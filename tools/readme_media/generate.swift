@@ -287,6 +287,19 @@ func drawIPhone16Pro(
   }
 }
 
+func renderDevicePreview(_ scene: Scene) -> NSImage {
+  let previewSize = NSSize(width: 500, height: 950)
+  return NSImage(size: previewSize, flipped: true) { _ in
+    drawIPhone16Pro(
+      scene: scene,
+      next: nil,
+      progress: 0,
+      in: NSRect(x: 35, y: 25, width: 430, height: 900)
+    )
+    return true
+  }
+}
+
 func render(scene: Scene, next: Scene?, progress: CGFloat, index: Int) -> NSImage {
   NSImage(size: canvas, flipped: true) { bounds in
     paper.setFill()
@@ -437,6 +450,18 @@ if let poster {
   try writePNG(
     poster,
     to: assetDirectory.appendingPathComponent("vitrine-showcase-poster.png")
+  )
+}
+
+let devicePreviews = [
+  (scenes[0], "vitrine-inventory-iphone16-pro.png"),
+  (scenes[1], "vitrine-finance-iphone16-pro.png"),
+  (scenes[2], "vitrine-white-label-iphone16-pro.png"),
+]
+for preview in devicePreviews {
+  try writePNG(
+    renderDevicePreview(preview.0),
+    to: assetDirectory.appendingPathComponent(preview.1)
   )
 }
 

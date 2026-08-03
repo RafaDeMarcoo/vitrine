@@ -20,9 +20,9 @@
 </p>
 
 <p align="center">
-  <img src="docs/assets/readme/vitrine-inventory.png" alt="Vitrine rendering typed inventory inside a sales conversation" width="31%">
-  <img src="docs/assets/readme/vitrine-finance.png" alt="Vitrine rendering interactive financing with its disclosure attached" width="31%">
-  <img src="docs/assets/readme/vitrine-white-label.png" alt="Vitrine rendering a white-label marine inventory conversation in dark mode" width="31%">
+  <img src="docs/assets/readme/vitrine-inventory-iphone16-pro.png" alt="Vitrine rendering typed inventory inside a sales conversation, presented in an iPhone 16 Pro frame" width="31%">
+  <img src="docs/assets/readme/vitrine-finance-iphone16-pro.png" alt="Vitrine rendering interactive financing with its disclosure attached, presented in an iPhone 16 Pro frame" width="31%">
+  <img src="docs/assets/readme/vitrine-white-label-iphone16-pro.png" alt="Vitrine rendering a white-label marine inventory conversation in dark mode, presented in an iPhone 16 Pro frame" width="31%">
 </p>
 
 <p align="center">
