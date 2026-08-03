@@ -172,6 +172,19 @@
         u.name + ", " + usd(u.price) + (u.meta ? ", " + u.meta : ""));
 
       const art = unitArt(u.category, u.hue);
+      if (u.image) {
+        // Real photography when the feed has it. The generated silhouette
+        // stays underneath as the fallback, so a dead CDN or an offline demo
+        // degrades to something designed rather than to a broken-image icon.
+        const img = el("img", "vt-unit-photo");
+        img.src = u.image;
+        img.alt = u.name;
+        img.loading = "lazy";
+        img.decoding = "async";
+        img.referrerPolicy = "no-referrer";
+        img.addEventListener("error", () => img.remove());
+        art.appendChild(img);
+      }
       if (u.badge) art.appendChild(el("span", "vt-unit-tag", u.badge));
       b.appendChild(art);
 
@@ -209,7 +222,7 @@
     }
     return card;
   };
-  R.unit_carousel.height = 336;
+  R.unit_carousel.height = 328;
 
   /* ---------------------------------------------------------------- */
   R.unit_compare = function (props) {
@@ -250,7 +263,7 @@
     card.appendChild(wrap);
     return card;
   };
-  R.unit_compare.height = 324;
+  R.unit_compare.height = 320;
 
   /* ---------------------------------------------------------------- */
   R.finance_slider = function (props, ctx) {
@@ -407,7 +420,7 @@
     card.appendChild(body);
     return card;
   };
-  R.finance_slider.height = 593;
+  R.finance_slider.height = 616;
 
   /* ---------------------------------------------------------------- */
   R.trade_in = function (props, ctx) {
@@ -475,7 +488,7 @@
     card.appendChild(body);
     return card;
   };
-  R.trade_in.height = 324;
+  R.trade_in.height = 308;
 
   /* ---------------------------------------------------------------- */
   R.schedule = function (props, ctx) {
@@ -539,7 +552,7 @@
     card.appendChild(body);
     return card;
   };
-  R.schedule.height = 210;
+  R.schedule.height = 218;
 
   /* ---------------------------------------------------------------- */
   R.lead_capture = function (props, ctx) {
@@ -594,7 +607,7 @@
     card.appendChild(body);
     return card;
   };
-  R.lead_capture.height = 470;
+  R.lead_capture.height = 446;
 
   /* ---------------------------------------------------------------- */
   R.summary_receipt = function (props) {

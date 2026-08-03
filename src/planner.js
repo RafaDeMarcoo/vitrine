@@ -32,7 +32,8 @@
   function unitToCard(u) {
     return {
       id: u.id, name: u.name, meta: u.meta, price: u.price,
-      monthly: u.monthly, badge: u.badge, category: u.category, hue: u.hue
+      monthly: u.monthly, badge: u.badge, category: u.category, hue: u.hue,
+      image: u.image, imageCredit: u.imageCredit
     };
   }
 
@@ -267,7 +268,7 @@
     return "INVENTORY (the only units that exist):\n" +
       Inv.UNITS.map((u) =>
         "- id=" + u.id + " | " + u.name + " | " + u.category + " | $" + u.price +
-        " | ~$" + u.monthly + "/mo | " + u.meta + " | hue=" + u.hue
+        " | ~$" + u.monthly + "/mo | " + u.meta + " | hue=" + u.hue + " | image=" + (u.image || "none")
       ).join("\n");
   };
 

@@ -74,7 +74,9 @@
       description:
         "A horizontally scrollable rail of inventory units. Use whenever the answer is " +
         "'here are some units'. Two to six units. Ordered best-match first; never pad the " +
-        "rail to fill it.",
+        "rail to fill it. Set `image` to the unit's photo URL from the inventory feed — " +
+        "never invent an image URL; if the feed has no photo, omit the field and the " +
+        "renderer draws a generated silhouette instead.",
       schema: {
         type: "object",
         required: ["units"],
@@ -96,7 +98,9 @@
                 monthly: money,
                 badge: { type: "string", maxLength: 18 },
                 category: { type: "string", enum: ["moto", "atv", "boat", "rv", "jetski"] },
-                hue: { type: "number", minimum: 0, maximum: 360 }
+                hue: { type: "number", minimum: 0, maximum: 360 },
+                image: { type: "string", maxLength: 400 },
+                imageCredit: { type: "string", maxLength: 120 }
               }
             }
           }

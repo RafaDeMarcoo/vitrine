@@ -2,7 +2,7 @@
 
 **Generative UI for conversations that sell.** A white-label chat widget where the model picks components from a typed registry instead of writing prose — and never writes markup.
 
-No build step. No dependencies. No framework. Six files, about 3,000 lines, works from `file://`.
+No build step. No dependencies. No framework. Seven files, about 3,700 lines, works from `file://`.
 
 > *Vitrine* — /viˈtriːn/, **vee-TREEN**. French and Portuguese for the glass case a shop puts its best things in. Unrelated to Vite and Vitest, despite the prefix. On npm it's [`vitrine-ui`](https://www.npmjs.com/package/vitrine-ui).
 
@@ -77,7 +77,7 @@ One source of truth. No drift between what the model may emit and what the clien
 
 **Layout never jumps.** Components declare their height in the registry, so the skeleton that lands first occupies exactly the space the hydrated card will take. Text streams character by character with a trailing caret; components arrive as complete units. A chat UI that reflows after a card lands feels broken even when it's correct, and that single property is most of what separates "premium" from "widget".
 
-**White-label is four tokens, and they're validated.** The tenant gets accent, radius, typeface and logo. The host keeps layout, spacing, hierarchy, depth and motion — the parts that actually carry the design. Every accent goes through a contrast gate before it is applied: foreground on accent fills is *chosen* by measured contrast, and an accent that fails WCAG AA against the page surface is darkened in 4% steps until it passes. Try the **Citrus** preset in the demo; it's a real brand yellow that fails out of the box, and you can watch the gate correct it instead of shipping something illegible.
+**White-label is five tokens, and they're validated.** The tenant gets accent, ink, radius, typeface and logo. The host keeps layout, spacing, hierarchy, depth and motion — the parts that actually carry the design. Every accent goes through a contrast gate before it is applied: foreground on accent fills is *chosen* by measured contrast, and an accent that fails WCAG AA against the page surface is darkened in 4% steps until it passes. See *The contrast gate* below for what that looks like with a real brand colour.
 
 **Compliance lives in the renderer, not the prompt.** `finance_slider` displays a monthly payment, which under Regulation Z is an advertised trigger term. The disclosure — down payment, amount financed, APR, term, total of payments — is recomputed from the same numbers the slider is showing, on every input event, and the schema refuses the card without `apr` and `termMonths`. The registry description tells the model, in as many words, not to route around it by putting a payment in prose. Prompt instructions get ignored; a renderer that can't draw the unsafe thing does not.
 
@@ -103,27 +103,49 @@ Three accessibility signals are answered independently, because treating them as
 
 ## The design system is a spec, not a vibe
 
-"Looks Apple-ish" is not something you can hand to a contributor, so the rules are written down in the top of [`src/vitrine.css`](src/vitrine.css) and every one of them is checkable in a browser console:
+The visual language is ported from **Spoken UI**, a Flutter design system: a high-chroma accent with a dark ink on top of it, Archivo with Archivo Condensed for titles, cool grey neutrals instead of true greys, small consistent radii, and — the part that changes everything — **positive tracking on small text**. Apple tightens large text; Spoken opens small text. Opposite instincts, and that one inversion is most of what makes this read as Spoken rather than as another Cupertino clone.
 
-| Rule | Value | Why |
+| Rule | Value | Source |
 |---|---|---|
-| Type | SF text styles only — 11 / 12 / 13 / 15 / 16 / 17 / 22 / 34 | A `15.5px` anywhere means someone eyeballed it, and eyeballed values are how a system drifts |
-| Spacing | 4pt grid, no exceptions | Includes the 1px optical nudges — those are how a grid quietly stops being a grid |
-| Hit areas | 44×44pt minimum on everything interactive | HIG's floor. The slider track is 5px; its control is 44px |
-| Radii | Three steps derived from the tenant's radius, with floors | A tenant who picks 26px gets coherent nesting, not a round card with sharp buttons |
-| Secondary text | ≥ 4.5:1, currently 5.3:1 | Apple's own `tertiaryLabel` lands near 3.4:1 and fails AA. A project shipping a contrast gate does not get to hand-wave its own body copy |
+| Type | Archivo / Archivo Condensed, scale 12 / 14 / 16 / 18 / 20 / 23 / 24 / 32 / 40, in `rem` | `UITextStyle` |
+| Tracking | +0.10 to +0.50px on labels and captions, ~0 on body | `UITextStyle` |
+| Spacing | `spaceUnit` 16, stepped in quarters: 4 / 8 / 12 / 16 / 20 / 24 / 32 | `UISpacing` |
+| Shape | 6 on controls, 8 on cards, 16 on large surfaces, pill on chips | `BorderRadius.circular(…)` |
+| Depth | `elevation: 0`, rising to 3 only while pressed. Structure from hairlines | `FilledButtonStyle` |
+| Hit areas | 44×44pt minimum on everything interactive | **not** Spoken — HIG's floor |
+| Contrast | every text colour ≥ 4.5:1 against its own background | **not** Spoken — WCAG |
 
-These are not aspirations. `npm run audit` drives the widget through the whole funnel in a real browser and measures them:
+The last two rows did not come from the design system, and would not have been given up if it had asked. Hit areas and contrast are correctness, not style, and a design system does not get a vote on them.
+
+Everything above is checkable in a browser console, and `npm run audit` checks it:
 
 ```
   PASS  TARGETS   44×44pt minimum, everything labelled
-  PASS  TYPE      SF text styles only, no fractional sizes
+  PASS  TYPE      Spoken scale only, no fractional sizes
   PASS  SPACING   4pt grid
   PASS  CONTRAST  all text ≥ 4.5:1 against its own background
   PASS  RUNTIME   no console errors during the funnel
 ```
 
-Its first run found six violations in a UI that looked fine, including the 3.44:1 secondary text. Measure before you trust it — looking is not measuring.
+Its first run found six violations in a UI that looked fine, including secondary text at 3.44:1 in a project whose headline feature is a contrast gate. Measure before you trust it — looking is not measuring.
+
+## The contrast gate, with a real brand colour
+
+Spoken's accent is a lime. Against white it measures **1.41:1** — as body copy it is not dim, it is invisible. Spoken solves this in its own palette by keeping a second, darker step (`primary50`) for accent-coloured text.
+
+The gate does that automatically for any tenant, and the demo shows all three outcomes at once:
+
+- **Fills keep the real brand colour.** The lime button is the lime.
+- **Accent text gets a derived step.** The same hue pushed 48% darker until it clears AA, so a highlighted table cell is readable without stopping being the brand.
+- **What sits on the fill is measured, not assumed.** The tenant's own ink `#222631` scores 10.72:1 on the lime, so it wins over black or white. That is the look the brand designed; the gate only overrides it when it fails.
+
+This is why the tenant surface is five tokens rather than four. A high-chroma accent only works with a specific dark neutral on top of it, and that neutral is part of the brand, not a host decision.
+
+## Photographs
+
+Units carry an `image` URL, and the renderer draws it with the generated silhouette underneath as a fallback — so a blocked CDN or an offline demo degrades to something designed rather than to a broken-image icon.
+
+The demo's photos are real, freely licensed (Unsplash and Pexels), and **hot-linked rather than vendored**, so no image binary is committed here. [`docs/CREDITS.md`](docs/CREDITS.md) lists every attribution and is explicit about which are the exact model and which are a representative example of the same class. In production none of that applies: `image` points at the dealer's own inventory photography, which they own.
 
 ## The eight components
 
@@ -147,12 +169,13 @@ Full payload documentation: [`docs/registry.md`](docs/registry.md).
 index.html            demo shell — theme switcher, contrast report, live wire inspector
 src/registry.js       component schemas + validator + tool-spec export   ← the contract
 src/renderer.js       spec -> DOM. Pure, no innerHTML, declares heights
-src/theme.js          four tenant tokens + the WCAG contrast gate
+src/theme.js          five tenant tokens + the WCAG contrast gate
 src/spring.js         spring solver, momentum, rubber-band, drag + slider gestures
 src/vitrine.js        conversation loop, streaming, skeleton timing
 src/planner.js        MockPlanner (offline, deterministic) + LivePlanner (real model)
 src/vitrine.css       host-owned design system; tenant surface at the top
-demo/inventory.js     fake dealership feed
+demo/inventory.js     fake dealership feed, real freely-licensed photos
+assets/fonts/         Archivo, subset to Latin as woff2 — 76 KB for six weights
 tools/audit-hig.js    npm run audit   — measures the four HIG rules in a browser
 tools/measure-heights.js  npm run measure — diffs skeleton heights against reality
 ```

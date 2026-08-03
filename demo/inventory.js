@@ -4,28 +4,46 @@
    Fictional units at plausible prices. In production this is the dealer's
    feed; the shape below is what the adapter has to produce, and nothing in
    src/ knows where it came from.
+
+   The photographs are real and freely licensed (Unsplash and Pexels) — see
+   docs/CREDITS.md for every attribution and which ones are the exact model
+   versus a representative example of the same class. They are hot-linked
+   rather than vendored, so nothing copyrighted lands in this repo and the
+   renderer falls back to a generated silhouette when they cannot load.
    ========================================================================== */
 
 (function (global) {
   "use strict";
 
   const UNITS = [
-    { id: "mt09",  name: "2026 Yamaha MT-09",        category: "moto",   price: 10999, monthly: 189, meta: "890cc · new · 0 mi",        badge: "New",     hue: 208, cc: 890,  seats: 2, tags: ["moto","street","commuter","fast","cheap"] },
-    { id: "z900",  name: "2025 Kawasaki Z900",       category: "moto",   price:  9799, monthly: 168, meta: "948cc · used · 3,120 mi",   badge: "Certified", hue: 128, cc: 948, seats: 2, tags: ["moto","street","commuter","fast","cheap"] },
-    { id: "v7",    name: "2024 Moto Guzzi V7 Stone", category: "moto",   price:  8450, monthly: 145, meta: "853cc · used · 5,870 mi",   hue: 22,  cc: 853,  seats: 2, tags: ["moto","street","retro","cheap"] },
-    { id: "gsa",   name: "2025 BMW R 1300 GS",       category: "moto",   price: 21995, monthly: 372, meta: "1300cc · new · 0 mi",       badge: "Flagship", hue: 196, cc: 1300, seats: 2, tags: ["moto","touring","adventure"] },
+    { id: "mt09",  name: "2026 Yamaha MT-09",        category: "moto",   price: 10999, monthly: 189, meta: "890cc · new · 0 mi",        badge: "New",     hue: 208, cc: 890,  seats: 2, image: "https://images.pexels.com/photos/15887144/pexels-photo-15887144.jpeg?auto=compress&cs=tinysrgb&w=800", imageCredit: "OĞUZHAN YAVUZ / Pexels",
+             tags: ["moto","street","commuter","fast","cheap"] },
+    { id: "z900",  name: "2025 Kawasaki Z900",       category: "moto",   price:  9799, monthly: 168, meta: "948cc · used · 3,120 mi",   badge: "Certified", hue: 128, cc: 948, seats: 2, image: "https://images.unsplash.com/photo-1611241443333-bdcff35bc8cc?w=800&q=75&fm=jpg&fit=max", imageCredit: "Pairach Boriboonmee / Unsplash",
+             tags: ["moto","street","commuter","fast","cheap"] },
+    { id: "v7",    name: "2024 Moto Guzzi V7 Stone", category: "moto",   price:  8450, monthly: 145, meta: "853cc · used · 5,870 mi",   hue: 22,  cc: 853,  seats: 2, image: "https://images.unsplash.com/photo-1666950577090-96eeb9730e17?w=800&q=75&fm=jpg&fit=max", imageCredit: "Bob Osias / Unsplash",
+             tags: ["moto","street","retro","cheap"] },
+    { id: "gsa",   name: "2025 BMW R 1300 GS",       category: "moto",   price: 21995, monthly: 372, meta: "1300cc · new · 0 mi",       badge: "Flagship", hue: 196, cc: 1300, seats: 2, image: "https://images.unsplash.com/photo-1764747995620-5769dd04a66f?w=800&q=75&fm=jpg&fit=max", imageCredit: "Ilya Godze / Unsplash",
+             tags: ["moto","touring","adventure"] },
 
-    { id: "rzr",   name: "2026 Polaris RZR Pro R",   category: "atv",    price: 34999, monthly: 589, meta: "2000cc · new · 4-seat",     badge: "New",     hue: 14,  cc: 2000, seats: 4, tags: ["atv","offroad","family","trail"] },
-    { id: "mav",   name: "2024 Can-Am Maverick X3",  category: "atv",    price: 26400, monthly: 447, meta: "900cc turbo · used · 610 h", hue: 40,  cc: 900,  seats: 2, tags: ["atv","offroad","trail"] },
+    { id: "rzr",   name: "2026 Polaris RZR Pro R",   category: "atv",    price: 34999, monthly: 589, meta: "2000cc · new · 4-seat",     badge: "New",     hue: 14,  cc: 2000, seats: 4, image: "https://images.unsplash.com/photo-1753376295626-becbc3765aaa?w=800&q=75&fm=jpg&fit=max", imageCredit: "Brandon Gardiner / Unsplash",
+             tags: ["atv","offroad","family","trail"] },
+    { id: "mav",   name: "2024 Can-Am Maverick X3",  category: "atv",    price: 26400, monthly: 447, meta: "900cc turbo · used · 610 h", hue: 40,  cc: 900,  seats: 2, image: "https://images.pexels.com/photos/23325251/pexels-photo-23325251.jpeg?auto=compress&cs=tinysrgb&w=800", imageCredit: "Joaquin Delgado / Pexels",
+             tags: ["atv","offroad","trail"] },
 
-    { id: "bow21", name: "2025 Bayliner VR5 Bowrider", category: "boat", price: 41900, monthly: 498, meta: "21 ft · 200 hp · 8 people", badge: "Popular", hue: 202, seats: 8, tags: ["boat","family","lake","water"] },
-    { id: "pont",  name: "2026 Bennington 22 SVL",   category: "boat",   price: 58750, monthly: 691, meta: "22 ft pontoon · 10 people", hue: 178, seats: 10, tags: ["boat","family","lake","pontoon","water"] },
-    { id: "wake",  name: "2024 Malibu Wakesetter",   category: "boat",   price: 96500, monthly: 1128, meta: "23 ft · surf system · 12", badge: "Premium", hue: 220, seats: 12, tags: ["boat","wake","water","fast"] },
+    { id: "bow21", name: "2025 Bayliner VR5 Bowrider", category: "boat", price: 41900, monthly: 498, meta: "21 ft · 200 hp · 8 people", badge: "Popular", hue: 202, seats: 8, image: "https://images.pexels.com/photos/36893119/pexels-photo-36893119.jpeg?auto=compress&cs=tinysrgb&w=800", imageCredit: "Bal Jinder / Pexels",
+             tags: ["boat","family","lake","water"] },
+    { id: "pont",  name: "2026 Bennington 22 SVL",   category: "boat",   price: 58750, monthly: 691, meta: "22 ft pontoon · 10 people", hue: 178, seats: 10, image: "https://images.unsplash.com/photo-1765720499263-d57f57a86d2c?w=800&q=75&fm=jpg&fit=max", imageCredit: "Natalia Ailatan / Unsplash",
+             tags: ["boat","family","lake","pontoon","water"] },
+    { id: "wake",  name: "2024 Malibu Wakesetter",   category: "boat",   price: 96500, monthly: 1128, meta: "23 ft · surf system · 12", badge: "Premium", hue: 220, seats: 12, image: "https://images.pexels.com/photos/10890312/pexels-photo-10890312.jpeg?auto=compress&cs=tinysrgb&w=800", imageCredit: "Aiden Begg / Pexels",
+             tags: ["boat","wake","water","fast"] },
 
-    { id: "ski",   name: "2026 Sea-Doo GTI SE 170",  category: "jetski", price: 12199, monthly: 209, meta: "170 hp · new · 3-seat",     badge: "New",     hue: 344, seats: 3, tags: ["jetski","water","fast","cheap"] },
+    { id: "ski",   name: "2026 Sea-Doo GTI SE 170",  category: "jetski", price: 12199, monthly: 209, meta: "170 hp · new · 3-seat",     badge: "New",     hue: 344, seats: 3, image: "https://images.pexels.com/photos/10931934/pexels-photo-10931934.jpeg?auto=compress&cs=tinysrgb&w=800", imageCredit: "Anton Kudryashov / Pexels",
+             tags: ["jetski","water","fast","cheap"] },
 
-    { id: "tt25",  name: "2025 Grand Design Imagine", category: "rv",    price: 42800, monthly: 389, meta: "25 ft travel trailer · 6",  hue: 32,  seats: 6, tags: ["rv","family","travel","trailer"] },
-    { id: "cls",   name: "2024 Winnebago Solis 59P", category: "rv",     price: 89900, monthly: 792, meta: "Class B camper van · 4",    badge: "Certified", hue: 96, seats: 4, tags: ["rv","travel","van","couple"] }
+    { id: "tt25",  name: "2025 Grand Design Imagine", category: "rv",    price: 42800, monthly: 389, meta: "25 ft travel trailer · 6",  hue: 32,  seats: 6, image: "https://images.unsplash.com/photo-1520101244246-293f77ffc39e?w=800&q=75&fm=jpg&fit=max", imageCredit: "Benjamin Zanatta / Unsplash",
+             tags: ["rv","family","travel","trailer"] },
+    { id: "cls",   name: "2024 Winnebago Solis 59P", category: "rv",     price: 89900, monthly: 792, meta: "Class B camper van · 4",    badge: "Certified", hue: 96, seats: 4, image: "https://images.unsplash.com/photo-1688619104633-b05bc632aca7?w=800&q=75&fm=jpg&fit=max", imageCredit: "Negley Stockman / Unsplash",
+             tags: ["rv","travel","van","couple"] }
   ];
 
   const SPECS = {

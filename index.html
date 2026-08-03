@@ -151,7 +151,7 @@
     <div>
       <div class="panel">
         <h2>Tenant theme</h2>
-        <p>Four tokens are writable: accent, radius, typeface, logo. Layout, spacing, depth and motion stay host-owned — that split is what keeps fifty brands on one codebase.</p>
+        <p>Five tokens are writable: accent, ink, radius, typeface, logo. Layout, spacing, depth and motion stay host-owned — that split is what keeps fifty brands on one codebase.</p>
         <div class="themes" id="themes"></div>
         <div class="toggles">
           <button class="tog" id="tog-scheme" type="button" aria-pressed="false">Dark mode</button>
@@ -161,7 +161,7 @@
 
       <div class="panel">
         <h2>Contrast gate</h2>
-        <p>Every accent is measured before it is applied. Try <strong>Citrus</strong> — a real brand yellow that fails WCAG AA out of the box — and watch the gate correct it rather than ship an unreadable widget.</p>
+        <p>Every accent and ink is measured before it is applied. The Spoken lime is 1.41:1 on white — as body copy it is invisible — so the gate derives a darker step for accent text while the fills keep the real brand colour. Try <strong>Pale</strong> to watch it work harder.</p>
         <ul class="report" id="report"></ul>
       </div>
 
@@ -219,14 +219,14 @@
   var noteEl   = document.getElementById("stagenote");
 
   var scheme = "light";
-  var currentTheme = "graphite";
+  var currentTheme = "spoken";
   var lastBlocks = [];
 
   var BRANDS = {
-    graphite: { name: "Northline Powersports", tagline: "Sales · Service · Marine" },
-    marina:   { name: "Harbour & Co.",          tagline: "Boats · Docks · Charter" },
-    trail:    { name: "Wideland RV",            tagline: "Motorhomes · Trailers · Camp" },
-    citrus:   { name: "Sunbelt Motorsports",    tagline: "Powersports · Rentals" }
+    spoken:  { name: "Northline Powersports", tagline: "Sales · Service · Marine" },
+    harbour: { name: "Harbour & Co.",          tagline: "Boats · Docks · Charter" },
+    violet:  { name: "Wideland RV",            tagline: "Motorhomes · Trailers · Camp" },
+    pale:    { name: "Sunbelt Motorsports",    tagline: "Powersports · Rentals" }
   };
 
   /* ---- theme UI ---- */
@@ -246,7 +246,7 @@
     var txt = document.createElement("span");
     txt.appendChild(document.createTextNode(p.label));
     var small = document.createElement("small");
-    small.textContent = p.accent + " · " + p.radius + "px";
+    small.textContent = p.accent + " · ink " + p.ink + " · r" + p.radius;
     txt.appendChild(small);
     b.appendChild(txt);
 
@@ -308,9 +308,9 @@
   /* ---- widget ---- */
   var widget = new Vitrine(device, {
     planner: new VitrinePlanner.MockPlanner(),
-    brandName: BRANDS.graphite.name,
-    brandTagline: BRANDS.graphite.tagline,
-    logoText: VitrineTheme.PRESETS.graphite.logoText,
+    brandName: BRANDS.spoken.name,
+    brandTagline: BRANDS.spoken.tagline,
+    logoText: VitrineTheme.PRESETS.spoken.logoText,
     suggestions: [
       "Motorcycles under $12,000",
       "A boat the whole family fits in",
@@ -366,7 +366,7 @@
     widget.reset();
   });
 
-  setTheme("graphite");
+  setTheme("spoken");
   widget.open();
 })();
 </script>
