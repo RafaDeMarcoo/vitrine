@@ -9,6 +9,8 @@ struct Scene {
   let title: String
   let detail: String
   let accent: NSColor
+  let screenFill: NSColor
+  let screenChrome: NSColor
 }
 
 let repository = URL(fileURLWithPath: FileManager.default.currentDirectoryPath)
@@ -27,6 +29,7 @@ let surface = NSColor(calibratedRed: 0.992, green: 0.990, blue: 0.978, alpha: 1)
 let muted = NSColor(calibratedRed: 0.36, green: 0.37, blue: 0.40, alpha: 1)
 let lime = NSColor(calibratedRed: 0.76, green: 0.92, blue: 0.20, alpha: 1)
 let violet = NSColor(calibratedRed: 0.49, green: 0.17, blue: 0.78, alpha: 1)
+let darkScreen = NSColor(calibratedWhite: 0.025, alpha: 1)
 
 func crop(_ image: NSImage, sourceRect: NSRect) -> NSImage {
   NSImage(size: sourceRect.size, flipped: true) { bounds in
@@ -49,7 +52,9 @@ let cropDefinitions = [
     "GENERATIVE COMMERCE",
     "Let the product\nanswer.",
     "Typed inventory cards, chosen by the model — never improvised markup.",
-    lime
+    lime,
+    surface,
+    ink
   ),
   (
     NSRect(x: 577, y: 29, width: 527, height: 1028),
@@ -57,7 +62,9 @@ let cropDefinitions = [
     "COMPLIANCE BY CONSTRUCTION",
     "Numbers that\nstay honest.",
     "Interactive financing with the disclosure structurally attached.",
-    lime
+    lime,
+    surface,
+    ink
   ),
   (
     NSRect(x: 1126, y: 29, width: 527, height: 1028),
@@ -65,7 +72,9 @@ let cropDefinitions = [
     "WHITE-LABEL BY DESIGN",
     "One registry.\nEvery brand.",
     "Change the tenant, palette and inventory — not the trusted renderer.",
-    violet
+    violet,
+    darkScreen,
+    NSColor.white
   ),
 ]
 
@@ -76,7 +85,9 @@ let scenes = cropDefinitions.map { definition in
     eyebrow: definition.2,
     title: definition.3,
     detail: definition.4,
-    accent: definition.5
+    accent: definition.5,
+    screenFill: definition.6,
+    screenChrome: definition.7
   )
 }
 
@@ -104,51 +115,120 @@ func drawText(
   )
 }
 
-func drawProductFrame(
+func drawIPhone16Pro(
   scene: Scene,
   next: Scene?,
   progress: CGFloat,
   in outer: NSRect
 ) {
+  let scale = outer.width / 430
+  func scaled(_ value: CGFloat) -> CGFloat { value * scale }
+
+  NSGraphicsContext.current?.saveGraphicsState()
+  let actionButton = NSBezierPath(
+    roundedRect: NSRect(
+      x: outer.minX - scaled(5),
+      y: outer.minY + scaled(145),
+      width: scaled(7),
+      height: scaled(54)
+    ),
+    xRadius: scaled(3.5),
+    yRadius: scaled(3.5)
+  )
+  NSColor(calibratedWhite: 0.34, alpha: 1).setFill()
+  actionButton.fill()
+
+  for y in [230.0, 310.0] {
+    let volumeButton = NSBezierPath(
+      roundedRect: NSRect(
+        x: outer.minX - scaled(5),
+        y: outer.minY + scaled(y),
+        width: scaled(7),
+        height: scaled(66)
+      ),
+      xRadius: scaled(3.5),
+      yRadius: scaled(3.5)
+    )
+    NSColor(calibratedWhite: 0.34, alpha: 1).setFill()
+    volumeButton.fill()
+  }
+
+  let sideButton = NSBezierPath(
+    roundedRect: NSRect(
+      x: outer.maxX - scaled(2),
+      y: outer.minY + scaled(245),
+      width: scaled(7),
+      height: scaled(110)
+    ),
+    xRadius: scaled(3.5),
+    yRadius: scaled(3.5)
+  )
+  NSColor(calibratedWhite: 0.34, alpha: 1).setFill()
+  sideButton.fill()
+
   NSGraphicsContext.current?.saveGraphicsState()
   let shadow = NSShadow()
   shadow.shadowColor = ink.withAlphaComponent(0.16)
-  shadow.shadowBlurRadius = 34
-  shadow.shadowOffset = NSSize(width: 0, height: 18)
+  shadow.shadowBlurRadius = scaled(38)
+  shadow.shadowOffset = NSSize(width: 0, height: scaled(18))
   shadow.set()
   let shell = NSBezierPath(
     roundedRect: outer,
-    xRadius: 38,
-    yRadius: 38
+    xRadius: scaled(64),
+    yRadius: scaled(64)
   )
-  ink.setFill()
+  NSColor(calibratedWhite: 0.38, alpha: 1).setFill()
   shell.fill()
   NSGraphicsContext.current?.restoreGraphicsState()
 
-  let machinedEdge = outer.insetBy(dx: 4, dy: 4)
+  let machinedEdge = outer.insetBy(dx: scaled(3), dy: scaled(3))
   let edge = NSBezierPath(
     roundedRect: machinedEdge,
-    xRadius: 34,
-    yRadius: 34
+    xRadius: scaled(61),
+    yRadius: scaled(61)
   )
-  NSColor(calibratedWhite: 0.10, alpha: 1).setFill()
+  NSColor(calibratedWhite: 0.018, alpha: 1).setFill()
   edge.fill()
-  NSColor.white.withAlphaComponent(0.24).setStroke()
-  edge.lineWidth = 0.8
+  NSColor.white.withAlphaComponent(0.28).setStroke()
+  edge.lineWidth = scaled(0.8)
   edge.stroke()
 
-  let screen = outer.insetBy(dx: 12, dy: 12)
+  let screen = outer.insetBy(dx: scaled(13), dy: scaled(13))
   NSGraphicsContext.current?.saveGraphicsState()
   NSBezierPath(
     roundedRect: screen,
-    xRadius: 28,
-    yRadius: 28
+    xRadius: scaled(51),
+    yRadius: scaled(51)
   ).addClip()
-  surface.setFill()
+  scene.screenFill.setFill()
   screen.fill()
+  if let next {
+    next.screenFill.withAlphaComponent(progress).setFill()
+    screen.fill()
+  }
   NSGraphicsContext.current?.imageInterpolation = .high
+
+  func contentRect(for source: NSImage) -> NSRect {
+    let safeAreaTop = scaled(48)
+    let availableHeight = screen.height - safeAreaTop
+    let fit = min(
+      screen.width / source.size.width,
+      availableHeight / source.size.height
+    )
+    let fittedSize = NSSize(
+      width: source.size.width * fit,
+      height: source.size.height * fit
+    )
+    return NSRect(
+      x: screen.midX - fittedSize.width / 2,
+      y: screen.minY + safeAreaTop,
+      width: fittedSize.width,
+      height: fittedSize.height
+    )
+  }
+
   scene.image.draw(
-    in: screen,
+    in: contentRect(for: scene.image),
     from: NSRect(origin: .zero, size: scene.image.size),
     operation: .sourceOver,
     fraction: 1 - progress,
@@ -157,7 +237,7 @@ func drawProductFrame(
   )
   if let next {
     next.image.draw(
-      in: screen,
+      in: contentRect(for: next.image),
       from: NSRect(origin: .zero, size: next.image.size),
       operation: .sourceOver,
       fraction: progress,
@@ -166,6 +246,57 @@ func drawProductFrame(
     )
   }
   NSGraphicsContext.current?.restoreGraphicsState()
+  NSGraphicsContext.current?.restoreGraphicsState()
+
+  let island = NSBezierPath(
+    roundedRect: NSRect(
+      x: screen.midX - scaled(47),
+      y: screen.minY + scaled(13),
+      width: scaled(94),
+      height: scaled(27)
+    ),
+    xRadius: scaled(14),
+    yRadius: scaled(14)
+  )
+  NSColor(calibratedWhite: 0.008, alpha: 1).setFill()
+  island.fill()
+  NSColor.white.withAlphaComponent(0.10).setStroke()
+  island.lineWidth = scaled(0.65)
+  island.stroke()
+
+  let sensor = NSBezierPath(
+    ovalIn: NSRect(
+      x: screen.midX + scaled(30),
+      y: screen.minY + scaled(22),
+      width: scaled(5),
+      height: scaled(5)
+    )
+  )
+  NSColor(calibratedRed: 0.04, green: 0.07, blue: 0.12, alpha: 1).setFill()
+  sensor.fill()
+
+  let homeIndicatorRect = NSRect(
+    x: screen.midX - scaled(46),
+    y: screen.maxY - scaled(17),
+    width: scaled(92),
+    height: scaled(5)
+  )
+  let currentIndicator = NSBezierPath(
+    roundedRect: homeIndicatorRect,
+    xRadius: scaled(2.5),
+    yRadius: scaled(2.5)
+  )
+  scene.screenChrome.withAlphaComponent(0.62 * (1 - progress)).setFill()
+  currentIndicator.fill()
+  if let next {
+    let nextIndicator = NSBezierPath(
+      roundedRect: homeIndicatorRect,
+      xRadius: scaled(2.5),
+      yRadius: scaled(2.5)
+    )
+    next.screenChrome.withAlphaComponent(0.62 * progress).setFill()
+    nextIndicator.fill()
+  }
 }
 
 func render(scene: Scene, next: Scene?, progress: CGFloat, index: Int) -> NSImage {
@@ -193,11 +324,11 @@ func render(scene: Scene, next: Scene?, progress: CGFloat, index: Int) -> NSImag
       color: muted
     )
 
-    drawProductFrame(
+    drawIPhone16Pro(
       scene: scene,
       next: next,
       progress: progress,
-      in: NSRect(x: 74, y: 35, width: 324, height: 605)
+      in: NSRect(x: 88, y: 32, width: 291, height: 609)
     )
 
     func drawCopy(_ value: Scene, alpha: CGFloat) {
