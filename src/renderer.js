@@ -19,7 +19,12 @@
 (function (global) {
   "use strict";
 
+  const M = global.VitrineMotion;
+
   /* ---- helpers -------------------------------------------------------- */
+
+  /** Every control goes through here, so press feedback is never forgotten. */
+  function press(node, opts) { return M ? M.pressable(node, opts) : node; }
 
   function el(tag, cls, text) {
     const n = document.createElement(tag);
@@ -125,7 +130,7 @@
       const c = el("button", "vt-chip", opt.label);
       c.type = "button";
       c.addEventListener("click", () => ctx.emit(opt.value, { source: "choice_chips" }));
-      row.appendChild(c);
+      row.appendChild(press(c));
     });
     wrap.appendChild(row);
     return wrap;
@@ -147,9 +152,17 @@
       card.appendChild(head);
     }
 
+    /* A dragged track, not an overflow container.
+       Native overflow scrolling gives no velocity, no rubber-banding and no
+       control over where a flick lands. This one tracks the finger 1:1,
+       resists past the ends, and on release projects the throw forward and
+       snaps to whichever card is nearest that projection — so a hard flick
+       advances even if the finger barely moved. */
     const rail = el("div", "vt-rail");
-    rail.setAttribute("role", "list");
-    rail.setAttribute("aria-label", props.title || "Matching units");
+    const track = el("div", "vt-rail-track");
+    track.setAttribute("role", "list");
+    track.setAttribute("aria-label", props.title || "Matching units");
+    rail.appendChild(track);
 
     props.units.forEach((u) => {
       const b = el("button", "vt-unit");
@@ -179,13 +192,24 @@
         ctx.emit("Tell me more about the " + u.name, { source: "unit_carousel", unitId: u.id });
       });
 
-      rail.appendChild(b);
+      track.appendChild(press(b, { scale: 0.985 }));
     });
 
     card.appendChild(rail);
+
+    if (M) {
+      // Snap points are the left edge of each card, so a flick always comes to
+      // rest with a card aligned to the rail rather than half-clipped.
+      M.dragScroll(rail, track, {
+        snap: function () {
+          const pad = parseFloat(getComputedStyle(track).paddingLeft) || 0;
+          return Array.prototype.map.call(track.children, (c) => -(c.offsetLeft - pad));
+        }
+      });
+    }
     return card;
   };
-  R.unit_carousel.height = 320;
+  R.unit_carousel.height = 336;
 
   /* ---------------------------------------------------------------- */
   R.unit_compare = function (props) {
@@ -259,35 +283,65 @@
     figure.appendChild(el("div", "vt-fin-per", "per month, estimated"));
     body.appendChild(figure);
 
-    /* down payment */
-    const dWrap = el("div", "vt-slider");
-    const dTop = el("div", "vt-slider-top");
-    dTop.appendChild(el("span", "vt-slider-name", "Down payment"));
-    const dVal = el("span", "vt-slider-val", usd(down));
-    dTop.appendChild(dVal);
-    dWrap.appendChild(dTop);
-    const dIn = el("input", "vt-range");
-    dIn.type = "range";
-    dIn.min = String(minDown); dIn.max = String(maxDown);
-    dIn.step = String(STEP); dIn.value = String(down);
-    dIn.setAttribute("aria-label", "Down payment");
-    dWrap.appendChild(dIn);
-    body.appendChild(dWrap);
+    /* Sliders.
+       Not <input type=range>: it cannot honour a grab offset (click the thumb
+       8px off centre and it teleports under your finger), it reports no
+       velocity, and it fights every attempt to give it a 44pt control height.
+       This one tracks the pointer 1:1 from wherever it was grabbed, and only
+       springs when you tap the bare track and the thumb has to travel. */
+    function makeSlider(label, cfg) {
+      const wrap = el("div", "vt-slider");
+      const top = el("div", "vt-slider-top");
+      top.appendChild(el("span", "vt-slider-name", label));
+      const out = el("span", "vt-slider-val", cfg.format(cfg.value));
+      top.appendChild(out);
+      wrap.appendChild(top);
 
-    /* term */
-    const tWrap = el("div", "vt-slider");
-    const tTop = el("div", "vt-slider-top");
-    tTop.appendChild(el("span", "vt-slider-name", "Term"));
-    const tVal = el("span", "vt-slider-val", terms[termIdx] + " months");
-    tTop.appendChild(tVal);
-    tWrap.appendChild(tTop);
-    const tIn = el("input", "vt-range");
-    tIn.type = "range";
-    tIn.min = "0"; tIn.max = String(terms.length - 1);
-    tIn.step = "1"; tIn.value = String(termIdx);
-    tIn.setAttribute("aria-label", "Loan term in months");
-    tWrap.appendChild(tIn);
-    body.appendChild(tWrap);
+      const range = el("div", "vt-range");
+      range.tabIndex = 0;
+      range.setAttribute("role", "slider");
+      range.setAttribute("aria-label", label);
+      range.setAttribute("aria-valuemin", String(cfg.min));
+      range.setAttribute("aria-valuemax", String(cfg.max));
+      range.setAttribute("aria-valuenow", String(cfg.value));
+      range.setAttribute("aria-valuetext", cfg.format(cfg.value));
+
+      const trackEl = el("div", "vt-range-track");
+      const fill = el("div", "vt-range-fill");
+      fill.setAttribute("data-fill", "");
+      trackEl.appendChild(fill);
+      const thumb = el("div", "vt-range-thumb");
+      thumb.setAttribute("data-thumb", "");
+      range.appendChild(trackEl);
+      range.appendChild(thumb);
+      wrap.appendChild(range);
+
+      const api = M ? M.slider(range, {
+        min: cfg.min, max: cfg.max, step: cfg.step, value: cfg.value,
+        onInput: (v) => {
+          out.textContent = cfg.format(v);
+          range.setAttribute("aria-valuenow", String(v));
+          range.setAttribute("aria-valuetext", cfg.format(v));
+          cfg.onInput(v);
+        }
+      }) : { value: cfg.value };
+
+      return { wrap: wrap, api: api, refresh: () => api.refresh && api.refresh() };
+    }
+
+    const dSlider = makeSlider("Down payment", {
+      min: minDown, max: maxDown, step: STEP, value: down,
+      format: usd,
+      onInput: (v) => { down = v; recompute(); }
+    });
+    body.appendChild(dSlider.wrap);
+
+    const tSlider = makeSlider("Term", {
+      min: 0, max: terms.length - 1, step: 1, value: termIdx,
+      format: (i) => terms[i] + " months",
+      onInput: (i) => { termIdx = i; recompute(); }
+    });
+    body.appendChild(tSlider.wrap);
 
     /* Regulation Z / Regulation M disclosure.
        Rendered from the same numbers the slider is showing, recomputed on
@@ -324,15 +378,12 @@
     body.appendChild(cta);
 
     function recompute() {
-      down = Number(dIn.value);
-      const term = terms[Number(tIn.value)];
+      const term = terms[termIdx];
       const financed = Math.max(0, props.price - down);
       const pay = monthlyPayment(financed, props.apr, term);
       const total = pay * term;
 
       amount.textContent = usd(pay);
-      dVal.textContent = usd(down);
-      tVal.textContent = term + " months";
 
       ddDown.textContent  = usd(down);
       ddFin.textContent   = usd(financed);
@@ -340,24 +391,23 @@
       ddTerm.textContent  = term + " months";
       ddPay.textContent   = usd2(pay);
       ddTotal.textContent = usd2(total);
-
-      dIn.style.setProperty("--vt-pct", ((down - minDown) / Math.max(1, maxDown - minDown) * 100) + "%");
-      tIn.style.setProperty("--vt-pct", (Number(tIn.value) / Math.max(1, terms.length - 1) * 100) + "%");
     }
-
-    dIn.addEventListener("input", recompute);
-    tIn.addEventListener("input", recompute);
     recompute();
 
+    // The sliders position their thumbs from clientWidth, which is 0 until the
+    // card is in the document. Re-lay them out on the next frame.
+    requestAnimationFrame(() => { dSlider.refresh(); tSlider.refresh(); });
+
+    press(cta);
     cta.addEventListener("click", () => {
-      ctx.setState({ financeDown: down, financeTerm: terms[Number(tIn.value)] });
+      ctx.setState({ financeDown: down, financeTerm: terms[termIdx] });
       ctx.emit("I'd like to see what I qualify for on the " + props.unitName, { source: "finance_slider" });
     });
 
     card.appendChild(body);
     return card;
   };
-  R.finance_slider.height = 552;
+  R.finance_slider.height = 593;
 
   /* ---------------------------------------------------------------- */
   R.trade_in = function (props, ctx) {
@@ -388,7 +438,7 @@
     [fYear, fMake, fModel, fHours].forEach((f) => grid.appendChild(f.wrap));
     body.appendChild(grid);
 
-    const btn = el("button", "vt-btn block", "Get my range");
+    const btn = press(el("button", "vt-btn block", "Get my range"));
     btn.type = "button";
     btn.style.marginTop = "4px";
     body.appendChild(btn);
@@ -414,8 +464,8 @@
       est.appendChild(el("div", "n",
         "Based on year and category only. A real number needs eyes on the unit — " +
         "condition, service history and tyres move this by more than the model does."));
-      est.classList.add("vt-enter");
       out.appendChild(est);
+      if (M) M.materialize(est, { response: 0.42, lift: 6 });
 
       const label = [fYear.input.value, fMake.input.value, fModel.input.value].filter(Boolean).join(" ");
       ctx.setState({ tradeIn: label, tradeLow: lo, tradeHigh: hi });
@@ -449,7 +499,7 @@
       slotGrid.textContent = "";
       const day = props.days[activeDay];
       day.slots.forEach((s) => {
-        const b = el("button", "vt-slot", s.time);
+        const b = press(el("button", "vt-slot", s.time));
         b.type = "button";
         b.setAttribute("aria-pressed", "false");
         if (s.taken) {
@@ -468,7 +518,7 @@
     }
 
     props.days.forEach((d, i) => {
-      const b = el("button", "vt-day");
+      const b = press(el("button", "vt-day"));
       b.type = "button";
       b.setAttribute("aria-pressed", i === 0 ? "true" : "false");
       b.setAttribute("aria-label", d.date);
@@ -489,7 +539,7 @@
     card.appendChild(body);
     return card;
   };
-  R.schedule.height = 216;
+  R.schedule.height = 210;
 
   /* ---------------------------------------------------------------- */
   R.lead_capture = function (props, ctx) {
@@ -524,7 +574,7 @@
       "Message and data rates may apply. Consent is not a condition of purchase; reply STOP to opt out.";
     form.appendChild(note);
 
-    const btn = el("button", "vt-btn block", props.cta || "Confirm");
+    const btn = press(el("button", "vt-btn block", props.cta || "Confirm"));
     btn.type = "submit";
     btn.style.marginTop = "16px";
     form.appendChild(btn);
@@ -568,6 +618,14 @@
     svg.appendChild(path);
     check.appendChild(svg);
     body.appendChild(check);
+    if (M && !M.env.reducedMotion) {
+      // A confirmation should land, not fade. Slight overshoot (damping 0.72)
+      // is the one place in the system where a bounce is the right answer.
+      const sp = new M.Spring({ damping: 0.72, response: 0.42, from: 0.3 });
+      sp.onChange = (v) => { check.style.transform = "scale(" + v + ")"; check.style.opacity = String(Math.min(1, v * 1.6)); };
+      sp.onChange(0.3);
+      sp.to(1).then(() => { check.style.transform = ""; check.style.opacity = ""; });
+    }
 
     body.appendChild(el("h3", "vt-card-title", props.title));
     if (props.subtitle) body.appendChild(el("p", "vt-card-sub", props.subtitle));
@@ -619,7 +677,6 @@
     if (!fn) return null;
     try {
       const node = fn(block.props || {}, ctx);
-      if (node) node.classList.add("vt-enter");
       return node;
     } catch (err) {
       // A component that throws must not take the conversation down with it.

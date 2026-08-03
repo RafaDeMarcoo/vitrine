@@ -11,13 +11,13 @@
     --pg:#f2f2f5; --pg2:#ffffff; --pgi:#1d1d1f; --pgi2:#54545a; --pgi3:#8a8a90;
     --pgline:rgba(0,0,0,.09); --pgline2:rgba(0,0,0,.055);
     --pgsh:0 1px 2px rgba(0,0,0,.04), 0 10px 34px rgba(0,0,0,.07);
-    --pgaccent:#0066cc;
+    --pgaccent:#0071e3;
   }
   [data-scheme="dark"]{
     --pg:#0a0a0c; --pg2:#141417; --pgi:#f5f5f7; --pgi2:#c2c2c8; --pgi3:#8a8a90;
     --pgline:rgba(255,255,255,.13); --pgline2:rgba(255,255,255,.075);
     --pgsh:0 1px 2px rgba(0,0,0,.5), 0 14px 44px rgba(0,0,0,.5);
-    --pgaccent:#4d9fff;
+    --pgaccent:#409cff;
   }
   *{box-sizing:border-box}
   body{
@@ -103,8 +103,8 @@
   .stage{position:sticky;top:28px}
   @media (max-width:1000px){ .stage{position:static} }
   .device{
-    height:min(760px,82vh);min-height:560px;
-    border-radius:30px;overflow:hidden;
+    height:min(780px,84vh);min-height:580px;
+    border-radius:34px;overflow:hidden;
     border:1px solid var(--pgline);
     box-shadow:0 2px 8px rgba(0,0,0,.06), 0 30px 70px rgba(0,0,0,.16);
     background:#fff;
@@ -138,8 +138,10 @@
     <p>A white-label chat widget where the model picks components instead of writing prose — and never writes markup.</p>
     <p class="small">
       Eight typed components in a registry. The model calls one by name and fills a JSON payload;
-      anything that fails schema validation is dropped before it reaches the DOM. Swap
-      <code>src/registry.js</code> and the whole thing retargets at a different industry.
+      anything that fails schema validation is dropped before it reaches the DOM.
+      Every gesture runs on interruptible springs — drag the carousel and throw it, grab the
+      payment slider off-centre, interrupt anything mid-flight. No CSS transition can do that,
+      which is most of why web chat widgets feel unlike native ones.
       No build step, no dependencies, no framework.
     </p>
   </header>
@@ -201,6 +203,7 @@
 
 <script src="src/registry.js"></script>
 <script src="src/theme.js"></script>
+<script src="src/spring.js"></script>
 <script src="src/renderer.js"></script>
 <script src="demo/inventory.js"></script>
 <script src="src/planner.js"></script>

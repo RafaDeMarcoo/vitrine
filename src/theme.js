@@ -77,22 +77,22 @@
   const PRESETS = {
     graphite: {
       label: "Graphite",
-      accent: "#0066cc",
-      radius: 18,
+      accent: "#0071e3",
+      radius: 20,
       font: '-apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Inter, Roboto, Helvetica, Arial, sans-serif',
       logoText: "N"
     },
     marina: {
       label: "Marina",
       accent: "#0f7d75",
-      radius: 12,
+      radius: 14,
       font: '"Avenir Next", Avenir, -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Helvetica, Arial, sans-serif',
       logoText: "M"
     },
     trail: {
       label: "Trail",
       accent: "#b4531a",
-      radius: 26,
+      radius: 28,
       font: '"Iowan Old Style", "Palatino Linotype", Palatino, Georgia, ui-serif, serif',
       logoText: "T"
     },
@@ -102,7 +102,7 @@
     citrus: {
       label: "Citrus (bad accent)",
       accent: "#ffd60a",
-      radius: 20,
+      radius: 22,
       font: '-apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Inter, Roboto, Helvetica, Arial, sans-serif',
       logoText: "C"
     }
@@ -151,7 +151,7 @@
 
     /* --- radius --- */
     let radius = Number(theme.radius);
-    if (!isFinite(radius)) radius = 18;
+    if (!isFinite(radius)) radius = 20;
     const clamped = Math.max(0, Math.min(32, radius));
     if (clamped !== radius) {
       report.push({ check: "radius", status: "ADJUSTED", detail: radius + "px clamped to " + clamped + "px (0–32 keeps card nesting coherent)" });

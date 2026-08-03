@@ -40,12 +40,13 @@ git clone https://github.com/RafaDeMarcoo/vitrine.git
 cd vitrine && open index.html      # that's it — no install, no server
 ```
 
-Or drop it into a page. There is no bundle and no entry point — five scripts with a load order, by design:
+Or drop it into a page. There is no bundle and no entry point — six scripts with a load order, by design:
 
 ```html
 <link rel="stylesheet" href="src/vitrine.css">
 <script src="src/registry.js"></script>   <!-- the contract -->
 <script src="src/theme.js"></script>      <!-- tokens + contrast gate -->
+<script src="src/spring.js"></script>     <!-- springs + gestures -->
 <script src="src/renderer.js"></script>   <!-- spec -> DOM -->
 <script src="src/planner.js"></script>    <!-- your planner, or the mock -->
 <script src="src/vitrine.js"></script>    <!-- runtime -->
@@ -80,6 +81,26 @@ One source of truth. No drift between what the model may emit and what the clien
 
 **Compliance lives in the renderer, not the prompt.** `finance_slider` displays a monthly payment, which under Regulation Z is an advertised trigger term. The disclosure — down payment, amount financed, APR, term, total of payments — is recomputed from the same numbers the slider is showing, on every input event, and the schema refuses the card without `apr` and `termMonths`. The registry description tells the model, in as many words, not to route around it by putting a payment in prose. Prompt instructions get ignored; a renderer that can't draw the unsafe thing does not.
 
+## Motion: springs, not transitions
+
+This is the part that decides whether an interface feels alive, and it is where most web UI gives itself away.
+
+A CSS transition cannot be interrupted usefully. Grab an element mid-flight and the browser either ignores you or snaps. So nothing here that a finger can touch uses one — [`src/spring.js`](src/spring.js) is a ~450-line spring solver and gesture layer, and everything gestural runs on it:
+
+- **Springs start from the current on-screen value.** Retarget mid-flight and the motion continues from where it visibly is. Starting from the logical target is what produces the jump you see in most "animated" web UI.
+- **Velocity is inherited, and blended on reversal.** A flick keeps flying; a gentle release settles. Reversing hard-cuts nothing — a hard cut reads as a brick wall.
+- **Parameterised as damping ratio + response**, like Apple does it, not as an opaque stiffness number. `1.0 / 0.35` for general UI, `0.8` where momentum is involved, `0.72` for the one confirmation that is allowed to overshoot.
+- **Feedback starts on `pointerdown`, never on `click`.** Waiting for the click is a whole human reaction time of nothing happening, and it is the single most common reason a web UI feels dead next to a native one. Presses also handle drag-away-and-back: slide off the control and it un-presses, slide back and it presses again.
+- **One rAF loop** drives every spring on the page, writing only `transform` and `opacity`.
+
+The carousel is a dragged track rather than an `overflow: auto` container, because native scrolling gives you no velocity, no rubber-banding and no say in where a flick lands. It tracks the finger 1:1 from wherever it was grabbed, resists past the ends, and on release **projects the throw forward** — `x + (v/1000) × d/(1−d)`, `d = 0.998` — and snaps to whichever card is nearest *that projection*. Snapping from the release point instead would ignore how hard you threw it.
+
+The payment slider is custom for one reason: `<input type=range>` cannot honour a grab offset. Grab the thumb 8px off centre and it teleports under your finger. This one stays where you grabbed it, tracks 1:1 while dragging, and springs only when you tap the bare track and the thumb has to travel to meet you. The track is 6px; the control is 44.
+
+Cards **materialise** — blur and scale resolve together off one spring — rather than fading in. A cross-fade reads as an image appearing; this reads as an object arriving.
+
+Three accessibility signals are answered independently, because treating them as one switch is how "accessible mode" ends up ugly for everyone who only needed one of them: `prefers-reduced-motion` drops the springs to instant, `prefers-reduced-transparency` makes the glass solid, `prefers-contrast: more` darkens the ink and thickens the borders.
+
 ## The design system is a spec, not a vibe
 
 "Looks Apple-ish" is not something you can hand to a contributor, so the rules are written down in the top of [`src/vitrine.css`](src/vitrine.css) and every one of them is checkable in a browser console:
@@ -92,7 +113,17 @@ One source of truth. No drift between what the model may emit and what the clien
 | Radii | Three steps derived from the tenant's radius, with floors | A tenant who picks 26px gets coherent nesting, not a round card with sharp buttons |
 | Secondary text | ≥ 4.5:1, currently 5.3:1 | Apple's own `tertiaryLabel` lands near 3.4:1 and fails AA. A project shipping a contrast gate does not get to hand-wave its own body copy |
 
-The last one was a live bug, caught by auditing rather than by looking. Measure your own UI before you trust it.
+These are not aspirations. `npm run audit` drives the widget through the whole funnel in a real browser and measures them:
+
+```
+  PASS  TARGETS   44×44pt minimum, everything labelled
+  PASS  TYPE      SF text styles only, no fractional sizes
+  PASS  SPACING   4pt grid
+  PASS  CONTRAST  all text ≥ 4.5:1 against its own background
+  PASS  RUNTIME   no console errors during the funnel
+```
+
+Its first run found six violations in a UI that looked fine, including the 3.44:1 secondary text. Measure before you trust it — looking is not measuring.
 
 ## The eight components
 
@@ -117,10 +148,13 @@ index.html            demo shell — theme switcher, contrast report, live wire 
 src/registry.js       component schemas + validator + tool-spec export   ← the contract
 src/renderer.js       spec -> DOM. Pure, no innerHTML, declares heights
 src/theme.js          four tenant tokens + the WCAG contrast gate
+src/spring.js         spring solver, momentum, rubber-band, drag + slider gestures
 src/vitrine.js        conversation loop, streaming, skeleton timing
 src/planner.js        MockPlanner (offline, deterministic) + LivePlanner (real model)
 src/vitrine.css       host-owned design system; tenant surface at the top
 demo/inventory.js     fake dealership feed
+tools/audit-hig.js    npm run audit   — measures the four HIG rules in a browser
+tools/measure-heights.js  npm run measure — diffs skeleton heights against reality
 ```
 
 Data flows one way:

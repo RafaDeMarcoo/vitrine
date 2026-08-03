@@ -55,7 +55,9 @@
   "scripts": {
     "check": "node -e \"['registry','theme','renderer','planner','vitrine'].forEach(f=>require('child_process').execSync('node --check src/'+f+'.js'));require('child_process').execSync('node --check demo/inventory.js');console.log('syntax ok')\"",
     "test:registry": "node -e \"global.window=global;require('./src/registry.js');const{validateBlock}=global.VitrineRegistry;const ok=validateBlock({component:'text',props:{body:'hi'}});const bad=validateBlock({component:'finance_slider',props:{unitId:'x',unitName:'y',price:100}});if(!ok.valid)throw new Error('valid block rejected');if(bad.valid)throw new Error('finance card accepted without apr/termMonths');console.log('registry ok \u2014 Reg Z fields are enforced by the schema')\"",
-    "measure": "node tools/measure-heights.js"
+    "measure": "node tools/measure-heights.js",
+    "audit": "node tools/audit-hig.js",
+    "verify": "npm run check && npm run test:registry && npm run measure && npm run audit"
   },
   "devDependencies": {
     "playwright": "^1.49.0"

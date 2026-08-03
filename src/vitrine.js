@@ -21,10 +21,16 @@
 
   const Registry = global.VitrineRegistry;
   const Renderer = global.VitrineRenderer;
+  const M = global.VitrineMotion;
 
   const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
-  const reduced = () =>
-    global.matchMedia && global.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const reduced = () => (M ? M.env.reducedMotion : false);
+
+  /* Every block arrives the same way: it materialises — blur and scale resolve
+     together off one spring — rather than fading in. A cross-fade reads as an
+     image appearing; this reads as an object arriving. */
+  const arrive = (node, opts) =>
+    M ? M.materialize(node, opts) : Promise.resolve();
 
   function Vitrine(root, opts) {
     opts = opts || {};
@@ -113,6 +119,7 @@
     p.setAttribute("fill", "none");
     svg.appendChild(p);
     this.sendBtn.appendChild(svg);
+    if (M) M.pressable(this.sendBtn, { scale: 0.9 });
     row.appendChild(this.sendBtn);
 
     composer.appendChild(row);
@@ -138,6 +145,7 @@
       b.type = "button";
       b.textContent = s;
       b.addEventListener("click", () => self.send(s));
+      if (M) M.pressable(b);
       this.suggRow.appendChild(b);
     });
   };
@@ -166,16 +174,18 @@
   Vitrine.prototype._userBubble = function (text) {
     const turn = this._turn();
     const b = document.createElement("div");
-    b.className = "vt-bubble user vt-enter";
+    b.className = "vt-bubble user";
     b.textContent = text;
     turn.appendChild(b);
+    arrive(b, { response: 0.4, lift: 8, scale: 0.98 });
     this._scroll();
   };
 
   Vitrine.prototype._thinking = function () {
     const turn = this._turn();
     const b = document.createElement("div");
-    b.className = "vt-bubble agent vt-enter";
+    b.className = "vt-bubble agent";
+    arrive(b, { response: 0.38, lift: 6, scale: 0.98 });
     const t = document.createElement("span");
     t.className = "vt-typing";
     t.appendChild(document.createElement("i"));
@@ -195,7 +205,7 @@
   Vitrine.prototype._streamText = function (container, body) {
     const self = this;
     const bubble = document.createElement("div");
-    bubble.className = "vt-bubble agent vt-enter";
+    bubble.className = "vt-bubble agent";
     const para = document.createElement("p");
     const span = document.createElement("span");
     const caret = document.createElement("span");
@@ -204,6 +214,7 @@
     para.appendChild(caret);
     bubble.appendChild(para);
     container.appendChild(bubble);
+    arrive(bubble, { response: 0.38, lift: 6, scale: 0.98 });
 
     if (reduced()) {
       span.textContent = body;
@@ -313,7 +324,7 @@
             setState: (patch) => Object.assign(self.state, patch),
             state: self.state
           });
-          if (node) holder.appendChild(node);
+          if (node) { holder.appendChild(node); arrive(node, { response: 0.44, blur: 4, lift: 8, scale: 0.98 }); }
           self.history.push({ role: "assistant", text: "[rendered " + block.component + "]" });
           self._scroll();
           return sleep(reduced() ? 0 : 90);
@@ -329,7 +340,7 @@
             state: self.state
           });
           holder.textContent = "";
-          if (node) holder.appendChild(node);
+          if (node) { holder.appendChild(node); arrive(node, { response: 0.52, blur: 7, lift: 12, scale: 0.965 }); }
           self.history.push({ role: "assistant", text: "[rendered " + block.component + "]" });
           self._scroll();
           return sleep(reduced() ? 0 : 90);
