@@ -1,0 +1,6 @@
+# README production tooling is not part of the Vitrine runtime.
+tools/readme_media/generate.swift linguist-documentation
+
+# Generated showcase assets should not affect repository language analysis.
+docs/assets/readme/*.png linguist-generated
+docs/assets/readme/*.gif linguist-generated
