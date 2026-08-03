@@ -132,8 +132,27 @@ async function captureTypedConversation(page) {
     await snap(900);
   }
 
+  async function tapFirstUnit() {
+    const unit = page.locator(".vt-unit").first();
+    await unit.scrollIntoViewIfNeeded();
+    const box = await unit.boundingBox();
+    if (!box) throw new Error("Could not locate the first inventory card");
+
+    const point = { x: box.x + box.width / 2, y: box.y + box.height / 2 };
+    await page.mouse.move(point.x, point.y);
+    await snap(420);
+    await page.mouse.down();
+    await snap(220);
+    await record(async () => {
+      await page.mouse.up();
+      await settle(page);
+    });
+    await snap(1100);
+  }
+
   await snap(900);
   await typeAndSend("Show me bikes under $12k");
+  await tapFirstUnit();
   await typeAndSend("Compare the Yamaha MT-09 and Kawasaki Z900");
   await typeAndSend("What's the monthly payment on the Moto Guzzi V7?");
   await snap(1400);

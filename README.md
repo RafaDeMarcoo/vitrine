@@ -30,22 +30,9 @@
   <sub>Reviewed product states from the running demo, not reconstructed mockups.</sub>
 </p>
 
-<table>
-  <tr>
-    <td width="52%" valign="middle">
-      <sub>LIVE PRODUCT FLOW</sub>
-      <h2>See it in action.</h2>
-      <p>
-        A customer types. Vitrine answers with inventory, comparison and financing components — all inside the same conversation.
-      </p>
-      <p><strong>USER TYPES → MODEL CHOOSES → CLIENT RENDERS</strong></p>
-      <sub>Actual browser capture · Dark + Pale</sub>
-    </td>
-    <td width="48%" align="center" valign="middle">
-      <img src="docs/assets/readme/vitrine-chat-pale-dark.gif?v=typed-chat-banner" alt="A customer typing into Vitrine in Dark mode with the Pale theme while the conversation fills with inventory, comparison and financing components" width="100%">
-    </td>
-  </tr>
-</table>
+<p align="center">
+  <img src="docs/assets/readme/vitrine-chat-pale-dark.gif?v=typed-tap-banner" alt="See Vitrine in action: a customer types in Dark mode with the Pale theme, taps a motorcycle card and continues through comparison and financing" width="100%">
+</p>
 
 ---
 

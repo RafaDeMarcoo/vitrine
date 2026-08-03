@@ -23,6 +23,7 @@ let warmYellow = NSColor(calibratedRed: 232 / 255, green: 216 / 255, blue: 63 / 
 let paleYellow = NSColor(calibratedRed: 255 / 255, green: 214 / 255, blue: 10 / 255, alpha: 1)
 let violet = NSColor(calibratedRed: 0.49, green: 0.17, blue: 0.78, alpha: 1)
 let darkScreen = NSColor(calibratedWhite: 0.025, alpha: 1)
+let white = NSColor(calibratedWhite: 1, alpha: 1)
 
 typealias SceneDefinition = (
   fileName: String,
@@ -571,14 +572,73 @@ for frameURL in chatFrameURLs {
     screenFill: darkScreen,
     screenChrome: NSColor.white
   )
-  let rendered = NSImage(size: NSSize(width: 500, height: 950), flipped: true) { bounds in
-    paper.setFill()
+  let rendered = NSImage(size: canvas, flipped: true) { bounds in
+    white.setFill()
     bounds.fill()
+
+    ink.withAlphaComponent(0.075).setStroke()
+    let divider = NSBezierPath()
+    divider.lineWidth = 1
+    divider.move(to: NSPoint(x: 724, y: 44))
+    divider.line(to: NSPoint(x: 724, y: 631))
+    divider.stroke()
+
+    drawText(
+      "VITRINE / LIVE",
+      in: NSRect(x: 72, y: 48, width: 220, height: 26),
+      font: .systemFont(ofSize: 15, weight: .bold),
+      color: ink
+    )
+    drawText(
+      "REAL BROWSER CAPTURE / DARK + PALE",
+      in: NSRect(x: 842, y: 51, width: 286, height: 24),
+      font: .systemFont(ofSize: 11, weight: .semibold),
+      color: muted
+    )
+
+    let dot = NSBezierPath(ovalIn: NSRect(x: 76, y: 128, width: 9, height: 9))
+    paleYellow.setFill()
+    dot.fill()
+    drawText(
+      "FROM QUESTION TO ACTION",
+      in: NSRect(x: 99, y: 123, width: 420, height: 24),
+      font: .systemFont(ofSize: 13, weight: .semibold),
+      color: ink
+    )
+    drawText(
+      "See it in\naction.",
+      in: NSRect(x: 70, y: 170, width: 590, height: 178),
+      font: .systemFont(ofSize: 75, weight: .bold),
+      color: ink,
+      lineSpacing: -7
+    )
+    drawText(
+      "Type a question. Tap a bike. Vitrine turns every answer into something the customer can act on.",
+      in: NSRect(x: 76, y: 382, width: 560, height: 96),
+      font: .systemFont(ofSize: 21, weight: .medium),
+      color: muted,
+      lineSpacing: 2
+    )
+
+    let chip = NSBezierPath(
+      roundedRect: NSRect(x: 76, y: 529, width: 250, height: 42),
+      xRadius: 21,
+      yRadius: 21
+    )
+    paleYellow.setFill()
+    chip.fill()
+    drawText(
+      "TYPE → TAP → KEEP GOING",
+      in: NSRect(x: 99, y: 541, width: 220, height: 22),
+      font: .systemFont(ofSize: 12, weight: .bold),
+      color: ink
+    )
+
     drawIPhone16Pro(
       scene: scene,
       next: nil,
       progress: 0,
-      in: NSRect(x: 35, y: 25, width: 430, height: 900)
+      in: NSRect(x: 817, y: 32, width: 291, height: 609)
     )
     return true
   }
