@@ -47,6 +47,9 @@ async function capture(page, fileName) {
 
 async function captureConversation(page) {
   await prepare(page);
+  await page.locator('.theme[data-key="pale"]').click();
+  await page.locator("#tog-scheme").click();
+  await page.waitForTimeout(250);
   await capture(page, "vitrine-choice-chips.png");
 
   await send(page, "Motorcycles under $12,000");

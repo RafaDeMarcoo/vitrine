@@ -4,7 +4,8 @@ The `vitrine-*.png` files are reproducible captures of the running demo. Three
 product states feed the standalone device previews; eight consecutive
 conversation states feed the animated hero, covering choice chips, inventory,
 comparison, financing, trade-in, scheduling, lead capture and the final
-receipt. The Swift generator reads those captures without modifying them and
+receipt. Those eight hero states use the Pale tenant theme in dark mode. The
+Swift generator reads those captures without modifying them and
 produces the hero GIF, its static poster and the three previews used by the
 repository README. Every composition presents the states inside an iPhone 16
 Pro-style frame with device-correct proportions, controls, safe area and

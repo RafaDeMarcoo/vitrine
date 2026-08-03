@@ -20,6 +20,7 @@ let paper = NSColor(calibratedRed: 0.965, green: 0.957, blue: 0.925, alpha: 1)
 let surface = NSColor(calibratedRed: 0.992, green: 0.990, blue: 0.978, alpha: 1)
 let muted = NSColor(calibratedRed: 0.36, green: 0.37, blue: 0.40, alpha: 1)
 let warmYellow = NSColor(calibratedRed: 232 / 255, green: 216 / 255, blue: 63 / 255, alpha: 1)
+let paleYellow = NSColor(calibratedRed: 255 / 255, green: 214 / 255, blue: 10 / 255, alpha: 1)
 let violet = NSColor(calibratedRed: 0.49, green: 0.17, blue: 0.78, alpha: 1)
 let darkScreen = NSColor(calibratedWhite: 0.025, alpha: 1)
 
@@ -69,56 +70,56 @@ let conversationDefinitions: [SceneDefinition] = [
     "01 / CHOICE CHIPS",
     "Ask less.\nChoose faster.",
     "Useful next steps arrive as trusted controls, not another paragraph.",
-    warmYellow, surface, ink
+    paleYellow, darkScreen, NSColor.white
   ),
   (
     "vitrine-unit-carousel.png",
     "02 / INVENTORY CAROUSEL",
     "The floor,\nin the thread.",
     "Live inventory becomes a draggable, typed product surface with real photography.",
-    warmYellow, surface, ink
+    paleYellow, darkScreen, NSColor.white
   ),
   (
     "vitrine-unit-compare.png",
     "03 / UNIT COMPARE",
     "Side by side,\nthen.",
     "The model selects the comparison; the renderer owns every row and value.",
-    warmYellow, surface, ink
+    paleYellow, darkScreen, NSColor.white
   ),
   (
     "vitrine-finance-slider.png",
     "04 / FINANCE SLIDER",
     "Payments with\nthe fine print.",
     "Interactive terms and Regulation Z disclosures stay structurally attached.",
-    warmYellow, surface, ink
+    paleYellow, darkScreen, NSColor.white
   ),
   (
     "vitrine-trade-in.png",
     "05 / TRADE-IN",
     "A number before\na lead form.",
     "Give value first: an indicative range without demanding contact details.",
-    warmYellow, surface, ink
+    paleYellow, darkScreen, NSColor.white
   ),
   (
     "vitrine-schedule.png",
     "06 / SCHEDULING",
     "Pick a slot.\nKeep moving.",
     "Availability becomes the next turn instead of sending the buyer elsewhere.",
-    warmYellow, surface, ink
+    paleYellow, darkScreen, NSColor.white
   ),
   (
     "vitrine-lead-capture.png",
     "07 / LEAD CAPTURE",
     "Contact details,\nasked last.",
     "The form appears only after the buyer has chosen something concrete.",
-    warmYellow, surface, ink
+    paleYellow, darkScreen, NSColor.white
   ),
   (
     "vitrine-summary-receipt.png",
     "08 / RECEIPT",
     "Booked without\na detour.",
     "The final state carries the unit, appointment and customer into one receipt.",
-    warmYellow, surface, ink
+    paleYellow, darkScreen, NSColor.white
   ),
 ]
 

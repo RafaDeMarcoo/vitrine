@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="docs/assets/readme/vitrine-showcase-refined.gif?v=liquid-glass" alt="Vitrine UI in motion: eight typed interactions from first choice to final booking receipt" width="100%">
+  <img src="docs/assets/readme/vitrine-showcase-refined.gif?v=pale-dark" alt="Vitrine UI in dark mode with the Pale theme: eight typed interactions from first choice to final booking receipt" width="100%">
 </p>
 
 <h1 align="center">Vitrine UI</h1>
