@@ -21,9 +21,11 @@ Shipped as `assets/fonts/*.woff2`: six weights (Archivo 400/500/600/700, Archivo
 
 ## Photographs
 
-Every photograph in the demo is **hot-linked, not vendored** — no image binary is committed here, so this repo redistributes none of them. Each is freely licensed at its source and permits commercial use without attribution; the credits below are given anyway, because not crediting a photographer you didn't pay is a choice rather than a requirement.
+Every photograph in the demo is **vendored** under `assets/units/`. Both licences below permit redistribution, and bundling them means the demo works offline and does not depend on someone else's CDN staying up. Neither licence requires attribution; the credits are given anyway, because not crediting a photographer you didn't pay is a choice rather than a requirement.
 
-If the images fail to load — offline, blocked CDN, GitHub Pages without network — the renderer drops the `<img>` and falls back to the generated silhouette. The demo is designed to look intentional either way.
+Each file was cropped to the card's 1.758:1 slot, resized to 640×364 (2.75× the rendered size) and re-encoded as progressive JPEG at quality 78 — **544 KB for all twelve, down from 3.3 MB** of originals. Three needed a hand-placed crop rather than a centre one: the BMW and the MT-09 are portrait shots where the subject is off-centre vertically, and the wake boat is a speck in a wide lake, so that one is cropped in 2.1×.
+
+If an image fails to load anyway, the renderer drops the `<img>` and falls back to the generated silhouette. The demo is designed to look intentional either way.
 
 ### Exact model
 

@@ -145,7 +145,7 @@ This is why the tenant surface is five tokens rather than four. A high-chroma ac
 
 Units carry an `image` URL, and the renderer draws it with the generated silhouette underneath as a fallback — so a blocked CDN or an offline demo degrades to something designed rather than to a broken-image icon.
 
-The demo's photos are real, freely licensed (Unsplash and Pexels), and **hot-linked rather than vendored**, so no image binary is committed here. [`docs/CREDITS.md`](docs/CREDITS.md) lists every attribution and is explicit about which are the exact model and which are a representative example of the same class. In production none of that applies: `image` points at the dealer's own inventory photography, which they own.
+The demo's twelve photos are real and freely licensed (Unsplash and Pexels — both permit redistribution), cropped per-image to the card slot and re-encoded: **544 KB for all twelve, down from 3.3 MB.** They are bundled rather than hot-linked so the demo works offline and does not depend on someone else's CDN. [`docs/CREDITS.md`](docs/CREDITS.md) lists every attribution and is explicit about which are the exact model and which are a representative example of the same class. In production none of that applies: `image` points at the dealer's own inventory photography, which they own.
 
 ## The eight components
 
