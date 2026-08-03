@@ -1,16 +1,44 @@
-# Vitrine UI
+<p align="center">
+  <img src="docs/assets/readme/vitrine-showcase.gif" alt="Vitrine UI in motion: generative inventory, compliant financing and a white-label dark theme" width="100%">
+</p>
 
-**Generative UI for conversations that sell.** A white-label chat widget where the model picks components from a typed registry instead of writing prose — and never writes markup.
+<h1 align="center">Vitrine UI</h1>
+
+<p align="center">
+  <strong>Generative UI for conversations that sell.</strong>
+</p>
+
+<p align="center">
+  The model chooses trusted components from a typed registry.<br>
+  The client renders the product experience. No model-authored markup, ever.
+</p>
+
+<p align="center">
+  <a href="#try-it">Try the demo</a> ·
+  <a href="docs/registry.md">Explore the registry</a> ·
+  <a href="#motion-springs-not-transitions">Feel the motion</a>
+</p>
+
+<p align="center">
+  <img src="docs/assets/readme/vitrine-inventory.png" alt="Vitrine rendering typed inventory inside a sales conversation" width="31%">
+  <img src="docs/assets/readme/vitrine-finance.png" alt="Vitrine rendering interactive financing with its disclosure attached" width="31%">
+  <img src="docs/assets/readme/vitrine-white-label.png" alt="Vitrine rendering a white-label marine inventory conversation in dark mode" width="31%">
+</p>
+
+<p align="center">
+  <sub>GENERATIVE INVENTORY &nbsp;·&nbsp; COMPLIANT FINANCING &nbsp;·&nbsp; WHITE-LABEL RUNTIME</sub><br>
+  <sub>Real product states — cropped reproducibly from the running demo, not reconstructed mockups.</sub>
+</p>
+
+---
+
+## Generative UI for conversations that sell
+
+A white-label chat widget where the model picks components from a typed registry instead of writing prose — and never writes markup.
 
 No build step. No dependencies. No framework. Seven files, about 3,700 lines, works from `file://`.
 
 > *Vitrine* — /viˈtriːn/, **vee-TREEN**. French and Portuguese for the glass case a shop puts its best things in. Unrelated to Vite and Vitest, despite the prefix. On npm it's [`vitrine-ui`](https://www.npmjs.com/package/vitrine-ui).
-
-<p align="center">
-  <img src="docs/hero.png" alt="Vitrine rendering an inventory carousel and a financing card inside a chat thread" width="820">
-</p>
-
----
 
 ## The idea in thirty seconds
 
