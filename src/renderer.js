@@ -117,7 +117,7 @@
     if (props.prompt) {
       const b = el("div", "vt-bubble agent");
       b.appendChild(el("p", null, props.prompt));
-      b.style.marginBottom = "10px";
+      b.style.marginBottom = "12px";
       wrap.appendChild(b);
     }
     const row = el("div", "vt-chips");
@@ -130,7 +130,11 @@
     wrap.appendChild(row);
     return wrap;
   };
-  R.choice_chips.height = 92;
+  // Chips are buttons, not a card: they have nothing to load and their height
+  // depends on how many wrap. A shimmer placeholder for them is theatre, and a
+  // fixed height would be a lie the moment a fourth chip wraps to a new row.
+  // Instant components skip the skeleton entirely.
+  R.choice_chips.instant = true;
 
   /* ---------------------------------------------------------------- */
   R.unit_carousel = function (props, ctx) {
@@ -181,7 +185,7 @@
     card.appendChild(rail);
     return card;
   };
-  R.unit_carousel.height = 268;
+  R.unit_carousel.height = 320;
 
   /* ---------------------------------------------------------------- */
   R.unit_compare = function (props) {
@@ -222,7 +226,7 @@
     card.appendChild(wrap);
     return card;
   };
-  R.unit_compare.height = 290;
+  R.unit_compare.height = 324;
 
   /* ---------------------------------------------------------------- */
   R.finance_slider = function (props, ctx) {
@@ -316,7 +320,7 @@
 
     const cta = el("button", "vt-btn block", "Check what I qualify for");
     cta.type = "button";
-    cta.style.marginTop = "14px";
+    cta.style.marginTop = "16px";
     body.appendChild(cta);
 
     function recompute() {
@@ -353,7 +357,7 @@
     card.appendChild(body);
     return card;
   };
-  R.finance_slider.height = 470;
+  R.finance_slider.height = 552;
 
   /* ---------------------------------------------------------------- */
   R.trade_in = function (props, ctx) {
@@ -421,7 +425,7 @@
     card.appendChild(body);
     return card;
   };
-  R.trade_in.height = 300;
+  R.trade_in.height = 324;
 
   /* ---------------------------------------------------------------- */
   R.schedule = function (props, ctx) {
@@ -485,7 +489,7 @@
     card.appendChild(body);
     return card;
   };
-  R.schedule.height = 236;
+  R.schedule.height = 216;
 
   /* ---------------------------------------------------------------- */
   R.lead_capture = function (props, ctx) {
@@ -514,7 +518,7 @@
     const iMail  = field("Email", "email", "email", "alex@example.com", "email");
 
     const note = el("p", "vt-disclosure");
-    note.style.marginTop = "2px";
+    note.style.marginTop = "4px";
     note.textContent = props.consentNote ||
       "By continuing you agree to be contacted about this enquiry, including by text. " +
       "Message and data rates may apply. Consent is not a condition of purchase; reply STOP to opt out.";
@@ -522,7 +526,7 @@
 
     const btn = el("button", "vt-btn block", props.cta || "Confirm");
     btn.type = "submit";
-    btn.style.marginTop = "14px";
+    btn.style.marginTop = "16px";
     form.appendChild(btn);
 
     form.addEventListener("submit", (e) => {
@@ -540,13 +544,13 @@
     card.appendChild(body);
     return card;
   };
-  R.lead_capture.height = 360;
+  R.lead_capture.height = 470;
 
   /* ---------------------------------------------------------------- */
   R.summary_receipt = function (props) {
     const card = el("div", "vt-card");
     const body = el("div", "vt-card-body vt-receipt");
-    body.style.paddingTop = "18px";
+    body.style.paddingTop = "20px";
 
     const check = el("div", "vt-receipt-check");
     const ns = "http://www.w3.org/2000/svg";
@@ -578,7 +582,7 @@
     card.appendChild(body);
     return card;
   };
-  R.summary_receipt.height = 250;
+  R.summary_receipt.height = 264;
 
   /* ======================================================================
      Public entry points
@@ -587,6 +591,10 @@
   /**
    * Build a skeleton that occupies the component's known height, so the
    * hydrated card lands in exactly the space the skeleton held.
+   *
+   * The `.height` on each component is measured, not guessed — run
+   * `npm run measure` after changing a component's markup or the type scale,
+   * and paste the numbers back. A stale height is a layout jump.
    */
   function skeleton(componentName) {
     const h = (R[componentName] && R[componentName].height) || 120;

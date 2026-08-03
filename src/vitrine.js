@@ -176,7 +176,6 @@
     const turn = this._turn();
     const b = document.createElement("div");
     b.className = "vt-bubble agent vt-enter";
-    b.style.width = "fit-content";
     const t = document.createElement("span");
     t.className = "vt-typing";
     t.appendChild(document.createElement("i"));
@@ -299,14 +298,29 @@
           return self._streamText(turn, block.props.body);
         }
 
-        /* skeleton -> hydrate, in a box of the final height */
         const holder = document.createElement("div");
-        holder.style.marginTop = rendered ? "10px" : "0";
-        const skel = Renderer.skeleton(block.component);
-        holder.appendChild(skel);
+        holder.style.marginTop = rendered ? "12px" : "0";
         turn.appendChild(holder);
-        self._scroll();
         rendered++;
+
+        /* Components with nothing to load skip the skeleton. Everything else
+           gets one sized from the registry, so the card lands in exactly the
+           space the placeholder held. */
+        const spec = Renderer.heights[block.component];
+        if (spec && spec.instant) {
+          const node = Renderer.render(block, {
+            emit: (t, m) => self.send(t, m),
+            setState: (patch) => Object.assign(self.state, patch),
+            state: self.state
+          });
+          if (node) holder.appendChild(node);
+          self.history.push({ role: "assistant", text: "[rendered " + block.component + "]" });
+          self._scroll();
+          return sleep(reduced() ? 0 : 90);
+        }
+
+        holder.appendChild(Renderer.skeleton(block.component));
+        self._scroll();
 
         return sleep(reduced() ? 0 : 260).then(() => {
           const node = Renderer.render(block, {

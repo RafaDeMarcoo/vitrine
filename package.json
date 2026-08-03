@@ -1,0 +1,63 @@
+{
+  "name": "vitrine-ui",
+  "version": "0.1.0",
+  "description": "Generative UI for conversations that sell. The model picks from a typed component registry; the client renders. No markup from the model, ever.",
+  "license": "MIT",
+  "author": "Rafael De Marco <rafael@flow-labs.io>",
+  "homepage": "https://github.com/RafaDeMarcoo/vitrine#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/RafaDeMarcoo/vitrine.git"
+  },
+  "bugs": {
+    "url": "https://github.com/RafaDeMarcoo/vitrine/issues"
+  },
+  "keywords": [
+    "generative-ui",
+    "chat-widget",
+    "component-registry",
+    "llm",
+    "tool-calling",
+    "json-schema",
+    "white-label",
+    "design-tokens",
+    "no-build",
+    "zero-dependencies"
+  ],
+  "type": "commonjs",
+  "sideEffects": true,
+  "files": [
+    "src",
+    "demo",
+    "docs/registry.md",
+    "index.html",
+    "README.md",
+    "LICENSE",
+    "tools"
+  ],
+  "exports": {
+    "./registry": "./src/registry.js",
+    "./theme": "./src/theme.js",
+    "./renderer": "./src/renderer.js",
+    "./planner": "./src/planner.js",
+    "./runtime": "./src/vitrine.js",
+    "./style.css": "./src/vitrine.css",
+    "./package.json": "./package.json"
+  },
+  "//": [
+    "No `main`, on purpose. The library is five browser scripts with a load",
+    "order \u2014 registry, theme, renderer, planner, runtime \u2014 that attach to",
+    "globals. Declaring a single entry point would imply a bundle that does",
+    "not exist. Load them with script tags, in that order; see the README.",
+    "src/registry.js is the exception: it has no DOM dependency and runs in",
+    "Node unchanged, which is how you validate blocks server-side."
+  ],
+  "scripts": {
+    "check": "node -e \"['registry','theme','renderer','planner','vitrine'].forEach(f=>require('child_process').execSync('node --check src/'+f+'.js'));require('child_process').execSync('node --check demo/inventory.js');console.log('syntax ok')\"",
+    "test:registry": "node -e \"global.window=global;require('./src/registry.js');const{validateBlock}=global.VitrineRegistry;const ok=validateBlock({component:'text',props:{body:'hi'}});const bad=validateBlock({component:'finance_slider',props:{unitId:'x',unitName:'y',price:100}});if(!ok.valid)throw new Error('valid block rejected');if(bad.valid)throw new Error('finance card accepted without apr/termMonths');console.log('registry ok \u2014 Reg Z fields are enforced by the schema')\"",
+    "measure": "node tools/measure-heights.js"
+  },
+  "devDependencies": {
+    "playwright": "^1.49.0"
+  }
+}

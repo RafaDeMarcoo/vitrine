@@ -1,8 +1,10 @@
-# Vitrine
+# Vitrine UI
 
 **Generative UI for conversations that sell.** A white-label chat widget where the model picks components from a typed registry instead of writing prose — and never writes markup.
 
-No build step. No dependencies. No framework. Six files, about 1,600 lines, works from `file://`.
+No build step. No dependencies. No framework. Six files, about 3,000 lines, works from `file://`.
+
+> *Vitrine* — /viˈtriːn/, **vee-TREEN**. French and Portuguese for the glass case a shop puts its best things in. Unrelated to Vite and Vitest, despite the prefix. On npm it's [`vitrine-ui`](https://www.npmjs.com/package/vitrine-ui).
 
 <p align="center">
   <img src="docs/hero.png" alt="Vitrine rendering an inventory carousel and a financing card inside a chat thread" width="820">
@@ -34,8 +36,26 @@ The model decides **what** to show. You decide **how** it looks. A hallucination
 ## Try it
 
 ```bash
-git clone https://github.com/YOUR-USERNAME/vitrine.git
+git clone https://github.com/RafaDeMarcoo/vitrine.git
 cd vitrine && open index.html      # that's it — no install, no server
+```
+
+Or drop it into a page. There is no bundle and no entry point — five scripts with a load order, by design:
+
+```html
+<link rel="stylesheet" href="src/vitrine.css">
+<script src="src/registry.js"></script>   <!-- the contract -->
+<script src="src/theme.js"></script>      <!-- tokens + contrast gate -->
+<script src="src/renderer.js"></script>   <!-- spec -> DOM -->
+<script src="src/planner.js"></script>    <!-- your planner, or the mock -->
+<script src="src/vitrine.js"></script>    <!-- runtime -->
+```
+
+`src/registry.js` has no DOM dependency and runs in Node unchanged, which is how you validate blocks server-side:
+
+```bash
+npm run test:registry
+# registry ok — Reg Z fields are enforced by the schema
 ```
 
 The demo ships with a deterministic offline planner, so it works with no API key, no network and no rate limit, and renders identically every time. Paste an Anthropic key in the sidebar to bind the same registry schemas as tools and let a live model drive.
@@ -59,6 +79,20 @@ One source of truth. No drift between what the model may emit and what the clien
 **White-label is four tokens, and they're validated.** The tenant gets accent, radius, typeface and logo. The host keeps layout, spacing, hierarchy, depth and motion — the parts that actually carry the design. Every accent goes through a contrast gate before it is applied: foreground on accent fills is *chosen* by measured contrast, and an accent that fails WCAG AA against the page surface is darkened in 4% steps until it passes. Try the **Citrus** preset in the demo; it's a real brand yellow that fails out of the box, and you can watch the gate correct it instead of shipping something illegible.
 
 **Compliance lives in the renderer, not the prompt.** `finance_slider` displays a monthly payment, which under Regulation Z is an advertised trigger term. The disclosure — down payment, amount financed, APR, term, total of payments — is recomputed from the same numbers the slider is showing, on every input event, and the schema refuses the card without `apr` and `termMonths`. The registry description tells the model, in as many words, not to route around it by putting a payment in prose. Prompt instructions get ignored; a renderer that can't draw the unsafe thing does not.
+
+## The design system is a spec, not a vibe
+
+"Looks Apple-ish" is not something you can hand to a contributor, so the rules are written down in the top of [`src/vitrine.css`](src/vitrine.css) and every one of them is checkable in a browser console:
+
+| Rule | Value | Why |
+|---|---|---|
+| Type | SF text styles only — 11 / 12 / 13 / 15 / 16 / 17 / 22 / 34 | A `15.5px` anywhere means someone eyeballed it, and eyeballed values are how a system drifts |
+| Spacing | 4pt grid, no exceptions | Includes the 1px optical nudges — those are how a grid quietly stops being a grid |
+| Hit areas | 44×44pt minimum on everything interactive | HIG's floor. The slider track is 5px; its control is 44px |
+| Radii | Three steps derived from the tenant's radius, with floors | A tenant who picks 26px gets coherent nesting, not a round card with sharp buttons |
+| Secondary text | ≥ 4.5:1, currently 5.3:1 | Apple's own `tertiaryLabel` lands near 3.4:1 and fails AA. A project shipping a contrast gate does not get to hand-wave its own body copy |
+
+The last one was a live bug, caught by auditing rather than by looking. Measure your own UI before you trust it.
 
 ## The eight components
 
@@ -101,7 +135,7 @@ user input ──> planner ──> [blocks] ──> validate ──> skeleton �
 ## Retargeting it
 
 1. Rewrite `src/registry.js` with your domain's components. Write the `description` fields for the model, not for a human — they are prompt surface, and *when not to use this component* earns its place more than what it does.
-2. Add a render function per component in `src/renderer.js`, plus a `.height` for the skeleton.
+2. Add a render function per component in `src/renderer.js`, plus a `.height` for the skeleton — run `npm run measure` to get the real number rather than guessing, or set `.instant = true` if the component has nothing to load.
 3. Point `LivePlanner.inventoryContext()` at your data.
 4. Leave `theme.js`, `vitrine.js` and the layout half of the CSS alone.
 
@@ -126,6 +160,10 @@ The demo puts an API key in the browser because a demo with a server is a demo n
 [A2UI](https://a2ui.org/) · [MCP Apps](https://blog.modelcontextprotocol.io/posts/2026-01-26-mcp-apps/) · [AG-UI](https://github.com/ag-ui-protocol/ag-ui) · [Vercel AI SDK generative UI](https://ai-sdk.dev/docs/introduction) · [Thesys C1](https://www.thesys.dev/)
 
 If you are choosing between these and rolling your own: use one of them for the protocol. Vitrine's contribution is the layer above it — the multi-tenant theming contract, the contrast gate, the skeleton timing, and putting compliance in the renderer instead of the prompt.
+
+## About the name
+
+"Vitrine" is a common noun in several languages, so there are unrelated neighbours: a [game launcher](https://github.com/vitrine-app/vitrine), a [static site generator](https://github.com/charlyisidore/vitrine), a jQuery image rotator, an abandoned 2020 npm stub holding the bare package name, and a cluster of Brazilian product-carousel components — *vitrine* is the standard word for a product showcase in Brazilian Portuguese. None of them are this project and none of them are affiliated with it. Hence `vitrine-ui` on npm, and the wordmark everywhere else.
 
 ## License
 
