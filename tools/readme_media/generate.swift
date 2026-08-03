@@ -4,7 +4,6 @@ import UniformTypeIdentifiers
 
 struct Scene {
   let image: NSImage
-  let outputName: String
   let eyebrow: String
   let title: String
   let detail: String
@@ -14,14 +13,7 @@ struct Scene {
 }
 
 let repository = URL(fileURLWithPath: FileManager.default.currentDirectoryPath)
-let sourceURL = repository.appendingPathComponent("docs/hero.png")
 let assetDirectory = repository.appendingPathComponent("docs/assets/readme")
-
-guard let source = NSImage(contentsOf: sourceURL) else {
-  throw NSError(domain: "VitrineReadmeMedia", code: 1, userInfo: [
-    NSLocalizedDescriptionKey: "Missing source image at \(sourceURL.path)",
-  ])
-}
 
 let ink = NSColor(calibratedRed: 0.075, green: 0.082, blue: 0.098, alpha: 1)
 let paper = NSColor(calibratedRed: 0.965, green: 0.957, blue: 0.925, alpha: 1)
@@ -31,23 +23,16 @@ let lime = NSColor(calibratedRed: 0.76, green: 0.92, blue: 0.20, alpha: 1)
 let violet = NSColor(calibratedRed: 0.49, green: 0.17, blue: 0.78, alpha: 1)
 let darkScreen = NSColor(calibratedWhite: 0.025, alpha: 1)
 
-func crop(_ image: NSImage, sourceRect: NSRect) -> NSImage {
-  NSImage(size: sourceRect.size, flipped: true) { bounds in
-    image.draw(
-      in: bounds,
-      from: sourceRect,
-      operation: .copy,
-      fraction: 1,
-      respectFlipped: true,
-      hints: [.interpolation: NSImageInterpolation.high]
-    )
-    return true
-  }
-}
-
-let cropDefinitions = [
+let sceneDefinitions: [(
+  fileName: String,
+  eyebrow: String,
+  title: String,
+  detail: String,
+  accent: NSColor,
+  screenFill: NSColor,
+  screenChrome: NSColor
+)] = [
   (
-    NSRect(x: 27, y: 29, width: 527, height: 1028),
     "vitrine-inventory.png",
     "GENERATIVE COMMERCE",
     "Let the product\nanswer.",
@@ -57,7 +42,6 @@ let cropDefinitions = [
     ink
   ),
   (
-    NSRect(x: 577, y: 29, width: 527, height: 1028),
     "vitrine-finance.png",
     "COMPLIANCE BY CONSTRUCTION",
     "Numbers that\nstay honest.",
@@ -67,7 +51,6 @@ let cropDefinitions = [
     ink
   ),
   (
-    NSRect(x: 1126, y: 29, width: 527, height: 1028),
     "vitrine-white-label.png",
     "WHITE-LABEL BY DESIGN",
     "One registry.\nEvery brand.",
@@ -78,16 +61,21 @@ let cropDefinitions = [
   ),
 ]
 
-let scenes = cropDefinitions.map { definition in
-  Scene(
-    image: crop(source, sourceRect: definition.0),
-    outputName: definition.1,
-    eyebrow: definition.2,
-    title: definition.3,
-    detail: definition.4,
-    accent: definition.5,
-    screenFill: definition.6,
-    screenChrome: definition.7
+let scenes = try sceneDefinitions.map { definition in
+  let sourceURL = assetDirectory.appendingPathComponent(definition.fileName)
+  guard let source = NSImage(contentsOf: sourceURL) else {
+    throw NSError(domain: "VitrineReadmeMedia", code: 1, userInfo: [
+      NSLocalizedDescriptionKey: "Missing source image at \(sourceURL.path)",
+    ])
+  }
+  return Scene(
+    image: source,
+    eyebrow: definition.eyebrow,
+    title: definition.title,
+    detail: definition.detail,
+    accent: definition.accent,
+    screenFill: definition.screenFill,
+    screenChrome: definition.screenChrome
   )
 }
 
@@ -406,36 +394,10 @@ func writePNG(_ image: NSImage, to url: URL) throws {
   try data.write(to: url)
 }
 
-func writeCGPNG(_ image: CGImage, to url: URL) throws {
-  let bitmap = NSBitmapImageRep(cgImage: image)
-  guard let data = bitmap.representation(using: .png, properties: [:]) else {
-    throw NSError(domain: "VitrineReadmeMedia", code: 4)
-  }
-  try data.write(to: url)
-}
-
 try FileManager.default.createDirectory(
   at: assetDirectory,
   withIntermediateDirectories: true
 )
-
-let sourceCG = try cgImage(source)
-for index in scenes.indices {
-  let sourceRect = cropDefinitions[index].0
-  let pixelRect = CGRect(
-    x: sourceRect.minX,
-    y: source.size.height - sourceRect.maxY,
-    width: sourceRect.width,
-    height: sourceRect.height
-  )
-  guard let cropped = sourceCG.cropping(to: pixelRect) else {
-    throw NSError(domain: "VitrineReadmeMedia", code: 5)
-  }
-  try writeCGPNG(
-    cropped,
-    to: assetDirectory.appendingPathComponent(scenes[index].outputName)
-  )
-}
 
 let gifURL = assetDirectory.appendingPathComponent("vitrine-showcase.gif")
 guard let destination = CGImageDestinationCreateWithURL(
@@ -444,7 +406,7 @@ guard let destination = CGImageDestinationCreateWithURL(
   scenes.count * 7,
   nil
 ) else {
-  throw NSError(domain: "VitrineReadmeMedia", code: 6)
+  throw NSError(domain: "VitrineReadmeMedia", code: 4)
 }
 CGImageDestinationSetProperties(destination, [
   kCGImagePropertyGIFDictionary: [kCGImagePropertyGIFLoopCount: 0],
@@ -468,7 +430,7 @@ for index in scenes.indices {
 }
 
 guard CGImageDestinationFinalize(destination) else {
-  throw NSError(domain: "VitrineReadmeMedia", code: 7)
+  throw NSError(domain: "VitrineReadmeMedia", code: 5)
 }
 
 if let poster {

@@ -1,10 +1,10 @@
 # README media
 
-The three product states are cropped reproducibly from the real
-[`docs/hero.png`](../../hero.png) composition. The animated hero and static
-screenshots are generated locally; they are not reconstructed mockups.
-The animated composition presents those states inside an iPhone 16 Pro-style
-frame with device-correct proportions, controls, safe area and Dynamic Island.
+The three `vitrine-*.png` product states are the reviewed source captures.
+The generator reads them without modifying them and produces the animated hero
+and its static poster. The composition presents those states inside an iPhone
+16 Pro-style frame with device-correct proportions, controls, safe area and
+Dynamic Island.
 
 Regenerate from the repository root on macOS:
 
