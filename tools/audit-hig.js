@@ -10,7 +10,7 @@
    UI that looked fine, including secondary text at 3.44:1 in a project whose
    headline feature is a contrast gate.
 
-     TYPE      Spoken's type scale only, no fractional sizes
+     TYPE      the type scale only, no fractional sizes
      SPACING   UISpacing: spaceUnit 16 in quarters (4/8/12/16/20/24/32)
      TARGETS   44×44pt minimum on everything interactive
      CONTRAST  every text colour ≥ 4.5:1 against its surface
@@ -21,7 +21,7 @@
 const path = require("path");
 const { chromium } = require("playwright");
 
-// Spoken's scale (UITextStyle), not Apple's. The audit enforces whatever
+// The project's own scale, not Apple's. The audit enforces whatever
 // system the project declares — the point is that a system is declared.
 const SCALE = [12, 14, 16, 18, 20, 23, 24, 32, 36, 40, 45, 56];
 const GRID = 4;          // UISpacing steps in quarters of a 16pt unit
@@ -129,7 +129,7 @@ const AA = 4.5;
   console.log("  " + "─".repeat(64));
   const results = [
     section("TARGETS", "44×44pt minimum, everything labelled", r.targets),
-    section("TYPE", "Spoken scale only, no fractional sizes", r.type),
+    section("TYPE", "type scale only, no fractional sizes", r.type),
     section("SPACING", "4pt grid", r.spacing),
     section("CONTRAST", "all text ≥ 4.5:1 against its own background", r.contrast),
     section("RUNTIME", "no console errors during the funnel", consoleErrors)

@@ -1,7 +1,7 @@
 {
   "name": "vitrine-ui",
   "version": "0.1.0",
-  "description": "Generative UI for conversations that sell. The model picks from a typed component registry; the client renders. Spoken design system, interruptible springs, no dependencies.",
+  "description": "Generative UI for conversations that sell. The model picks from a typed component registry; the client renders. A tokenised design system, interruptible springs, no dependencies.",
   "license": "MIT",
   "author": "Rafael De Marco <rafael@flow-labs.io>",
   "homepage": "https://github.com/RafaDeMarcoo/vitrine#readme",

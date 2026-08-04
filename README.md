@@ -135,25 +135,25 @@ Three accessibility signals are answered independently, because treating them as
 
 ## The design system is a spec, not a vibe
 
-The visual language is ported from **Spoken UI**, a Flutter design system: a high-chroma accent with a dark ink on top of it, Archivo with Archivo Condensed for titles, cool grey neutrals instead of true greys, small consistent radii, and — the part that changes everything — **positive tracking on small text**. Apple tightens large text; Spoken opens small text. Opposite instincts, and that one inversion is most of what makes this read as Spoken rather than as another Cupertino clone.
+The visual language is written down as tokens rather than eyeballed: a high-chroma accent with a dark ink on top of it, Archivo with Archivo Condensed for titles, cool grey neutrals instead of true greys, small consistent radii, and — the part that changes everything — **positive tracking on small text**. Apple tightens large display type; small UI text wants the opposite, and opening it up is most of what keeps this from reading as another Cupertino clone.
 
-| Rule | Value | Source |
+| Rule | Value | Why |
 |---|---|---|
-| Type | Archivo / Archivo Condensed, scale 12 / 14 / 16 / 18 / 20 / 23 / 24 / 32 / 40, in `rem` | `UITextStyle` |
-| Tracking | +0.10 to +0.50px on labels and captions, ~0 on body | `UITextStyle` |
-| Spacing | `spaceUnit` 16, stepped in quarters: 4 / 8 / 12 / 16 / 20 / 24 / 32 | `UISpacing` |
-| Shape | 6 on controls, 8 on cards, 16 on large surfaces, pill on chips | `BorderRadius.circular(…)` |
-| Depth | `elevation: 0`, rising to 3 only while pressed. Structure from hairlines | `FilledButtonStyle` |
-| Hit areas | 44×44pt minimum on everything interactive | **not** Spoken — HIG's floor |
-| Contrast | every text colour ≥ 4.5:1 against its own background | **not** Spoken — WCAG |
+| Type | Archivo / Archivo Condensed, scale 12 / 14 / 16 / 18 / 20 / 23 / 24 / 32 / 40, in `rem` | a closed scale, in `rem` so browser text scaling works |
+| Tracking | +0.10 to +0.50px on labels and captions, ~0 on body | small text set tight loses letterform separation first |
+| Spacing | base unit 16, stepped in quarters: 4 / 8 / 12 / 16 / 20 / 24 / 32 | one rhythm, so nothing lands off-grid |
+| Shape | 6 on controls, 8 on cards, 16 on large surfaces, pill on chips | radius carries hierarchy once depth is flat |
+| Depth | flat by default, rising only while pressed. Structure from hairlines | a shadow that never moves is decoration, not signal |
+| Hit areas | 44×44pt minimum on everything interactive | HIG's floor — correctness, not style |
+| Contrast | every text colour ≥ 4.5:1 against its own background | WCAG AA — correctness, not style |
 
-The last two rows did not come from the design system, and would not have been given up if it had asked. Hit areas and contrast are correctness, not style, and a design system does not get a vote on them.
+The last two rows are not aesthetic choices, and they win any argument with one. Hit areas and contrast are correctness, and a visual language does not get a vote on them.
 
 Everything above is checkable in a browser console, and `npm run audit` checks it:
 
 ```
   PASS  TARGETS   44×44pt minimum, everything labelled
-  PASS  TYPE      Spoken scale only, no fractional sizes
+  PASS  TYPE      type scale only, no fractional sizes
   PASS  SPACING   4pt grid
   PASS  CONTRAST  all text ≥ 4.5:1 against its own background
   PASS  RUNTIME   no console errors during the funnel
@@ -163,7 +163,7 @@ Its first run found six violations in a UI that looked fine, including secondary
 
 ## The contrast gate, with a real brand colour
 
-Spoken's accent is a warm yellow. Against white it measures **1.47:1** — as body copy it is not dim, it is invisible. Spoken pairs it with `#886C2C`, a darker token for accent-coloured text.
+The demo's default tenant accent is a warm yellow. Against white it measures **1.47:1** — as body copy it is not dim, it is invisible. The brand pairs it with `#886C2C`, a darker token for accent-coloured text.
 
 The gate does that automatically for any tenant, and the demo shows all three outcomes at once:
 

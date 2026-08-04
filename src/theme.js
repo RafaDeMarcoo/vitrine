@@ -79,8 +79,8 @@
   /* ---- the public API -------------------------------------------------- */
 
   const PRESETS = {
-    spoken: {
-      label: "Spoken",
+    northline: {
+      label: "Northline",
       accent: "#e8d83f",
       accentText: "#886c2c",
       ink: "#222631",
@@ -90,7 +90,7 @@
     },
     harbour: {
       label: "Harbour",
-      accent: "#006680",          // Spoken's secondary
+      accent: "#006680",          // a deep teal — cool counterpart to the default
       ink: "#101d24",
       radius: 4,
       font: 'Archivo, "Archivo Condensed", -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, system-ui, sans-serif',
@@ -98,7 +98,7 @@
     },
     violet: {
       label: "Violet",
-      accent: "#8234c5",          // Spoken's tertiary
+      accent: "#8234c5",          // a saturated violet — the hardest case for the gate
       ink: "#1d162a",
       radius: 16,
       font: 'Archivo, "Archivo Condensed", -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, system-ui, sans-serif',
@@ -129,7 +129,7 @@
     let accent = hexToRgb(theme.accent);
     if (!accent) {
       report.push({ check: "accent", status: "FAIL", detail: "'" + theme.accent + "' is not a hex colour — falling back to the default" });
-      accent = hexToRgb(PRESETS.spoken.accent);
+      accent = hexToRgb(PRESETS.northline.accent);
     }
 
     const rawRatio = contrast(accent, surface);
@@ -163,8 +163,8 @@
        The tenant supplies a dark neutral; we use it on the fill when it is
        legible there, because a brand's own ink on its own accent is the look
        the brand designed. Only when it fails do we fall back to measured
-       black or white. Spoken's warm yellow with its #222631 ink is exactly this
-       case: 10.31:1, far better than either default. */
+       black or white. The default warm yellow with its #222631 ink is exactly
+       this case: 10.31:1, far better than either default. */
     let ink = hexToRgb(theme.ink);
     if (!ink) ink = isDark ? { r: 242, g: 243, b: 245 } : { r: 34, g: 38, b: 49 };
 

@@ -161,7 +161,7 @@
 
       <div class="panel">
         <h2>Contrast gate</h2>
-        <p>Every accent and ink is measured before it is applied. The Spoken yellow is 1.47:1 on white — as body copy it is invisible — so the gate uses its accessible <code>#886C2C</code> token for text while fills keep the real brand colour. Try <strong>Pale</strong> to watch it work harder.</p>
+        <p>Every accent and ink is measured before it is applied. The default warm yellow is 1.47:1 on white — as body copy it is invisible — so the gate uses its accessible <code>#886C2C</code> token for text while fills keep the real brand colour. Try <strong>Pale</strong> to watch it work harder.</p>
         <ul class="report" id="report"></ul>
       </div>
 
@@ -219,14 +219,14 @@
   var noteEl   = document.getElementById("stagenote");
 
   var scheme = "light";
-  var currentTheme = "spoken";
+  var currentTheme = "northline";
   var lastBlocks = [];
 
   var BRANDS = {
-    spoken:  { name: "Northline Powersports", tagline: "Sales · Service · Marine" },
-    harbour: { name: "Harbour & Co.",          tagline: "Boats · Docks · Charter" },
-    violet:  { name: "Wideland RV",            tagline: "Motorhomes · Trailers · Camp" },
-    pale:    { name: "Sunbelt Motorsports",    tagline: "Powersports · Rentals" }
+    northline: { name: "Northline Powersports", tagline: "Sales · Service · Marine" },
+    harbour:   { name: "Harbour & Co.",        tagline: "Boats · Docks · Charter" },
+    violet:    { name: "Wideland RV",          tagline: "Motorhomes · Trailers · Camp" },
+    pale:      { name: "Sunbelt Motorsports",  tagline: "Powersports · Rentals" }
   };
 
   /* ---- theme UI ---- */
@@ -308,9 +308,9 @@
   /* ---- widget ---- */
   var widget = new Vitrine(device, {
     planner: new VitrinePlanner.MockPlanner(),
-    brandName: BRANDS.spoken.name,
-    brandTagline: BRANDS.spoken.tagline,
-    logoText: VitrineTheme.PRESETS.spoken.logoText,
+    brandName: BRANDS.northline.name,
+    brandTagline: BRANDS.northline.tagline,
+    logoText: VitrineTheme.PRESETS.northline.logoText,
     suggestions: [
       "Motorcycles under $12,000",
       "A boat the whole family fits in",
@@ -366,7 +366,7 @@
     widget.reset();
   });
 
-  setTheme("spoken");
+  setTheme("northline");
   widget.open();
 })();
 </script>

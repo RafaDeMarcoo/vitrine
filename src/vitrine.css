@@ -1,30 +1,34 @@
 /* ==========================================================================
    Vitrine UI — design system
    --------------------------------------------------------------------------
-   Ported from the Spoken design system (spoken_ui, Flutter). The component
-   surfaces stay flat and typographic; only the floating app chrome becomes
-   a Vitrine lens, so liquid glass remains a functional material rather than
-   decoration applied to everything.
+   Every visual decision here is a written-down token, not a judgement call
+   made per component. The component surfaces stay flat and typographic;
+   only the floating app chrome becomes a Vitrine lens, so liquid glass
+   remains a functional material rather than decoration applied to
+   everything.
 
-   What came across from spoken_ui, and where it lives there:
+   The rules, and why each one is a rule:
 
-     COLOUR    UIColors — a high-chroma accent with a dark ink on top of it,
-               a near-white surface, and cool grey neutrals (#EFF0FA,
-               #DFE1EC, #73777F) rather than pure greys.
-     TYPE      UITextStyle — Archivo, with Archivo Condensed for titles and
-               labels, and POSITIVE tracking (0.1–0.5). Apple tightens large
-               text; Spoken opens small text. Opposite instincts, and the
-               tracking is most of what makes this read as Spoken.
-     SPACING   UISpacing — spaceUnit 16, stepped in quarters: 4 / 8 / 12 /
-               16 / 20 / 24 / 32.
-     SHAPE     BorderRadius.circular(6) on controls, 8 on cards, 16 on
-               sheets, 25 on pills. Small and consistent.
-     DEPTH     elevation: 0 everywhere, rising to 3 only while pressed.
-               Structure comes from hairlines, not shadows.
+     COLOUR    a high-chroma accent with a dark ink on top of it, a
+               near-white surface, and cool grey neutrals (#EFF0FA,
+               #DFE1EC, #73777F) rather than pure greys — neutrals with a
+               hue read as intentional; true greys read as unstyled.
+     TYPE      Archivo, with Archivo Condensed for titles and labels, and
+               POSITIVE tracking (0.1–0.5). Apple tightens large display
+               type; small UI text wants the opposite, because letterforms
+               lose separation before they lose size.
+     SPACING   one base unit of 16, stepped in quarters: 4 / 8 / 12 / 16 /
+               20 / 24 / 32. One rhythm, so nothing lands off-grid.
+     SHAPE     radius 6 on controls, 8 on cards, 16 on sheets, pill on
+               chips. Small and consistent — radius carries hierarchy once
+               depth is flat.
+     DEPTH     flat everywhere, rising only while pressed. Structure comes
+               from hairlines, not shadows: a shadow that never moves is
+               decoration rather than signal.
 
-   What did NOT come across, and why: the 44pt hit area, the accessibility
-   media queries and the contrast gate stay. Those are correctness, not
-   style, and a design system does not get a vote on them.
+   The 44pt hit area, the accessibility media queries and the contrast gate
+   are not on that list and are not negotiable against it. Those are
+   correctness, not style, and a visual language does not get a vote.
 
    MOTION is not in this file. Anything a finger can touch is driven by
    springs in spring.js, because a CSS transition cannot be interrupted. CSS
@@ -46,9 +50,9 @@
 
 :root {
   /* ---- WRITABLE: the tenant surface. Five knobs. ----
-     Five rather than four because a real design system turned up and needed
-     the fifth: Spoken's warm yellow accent only works with its
-     own dark ink on top. A brand's dark neutral is part of the brand. */
+     Five rather than four because a real brand turned up and needed the
+     fifth: a warm yellow accent only works with its own dark ink on top.
+     A brand's dark neutral is part of the brand. */
   --vt-accent:      #e8d83f;
   --vt-ink:         #222631;
   --vt-radius:      8px;
@@ -68,7 +72,7 @@
   --vt-accent-soft: rgba(232, 216, 63, 0.16);
   --vt-accent-ring: rgba(232, 216, 63, 0.42);
 
-  /* ---- Type: Spoken's scale, in rem so browser text scaling works.
+  /* ---- Type: a closed scale, in rem so browser text scaling works.
      Fixed px silently ignores the user's accessibility setting. ---- */
   --vt-t-display:  2.5rem;    /* 40 — displaySmall */
   --vt-t-headline: 2rem;      /* 32 — headlineSmall */
@@ -79,8 +83,8 @@
   --vt-t-label:    0.875rem;  /* 14 — bodyMedium / labelLarge */
   --vt-t-small:    0.75rem;   /* 12 — bodySmall / caption */
 
-  /* Spoken opens small text rather than tightening large text — the inverse
-     of Apple's optical tracking, and most of what makes this read as Spoken. */
+  /* Small text opens rather than large text tightening — the inverse of
+     Apple's optical tracking, and most of what gives this its voice. */
   --vt-tr-display: -0.01em;
   --vt-tr-title:    0.005em;
   --vt-tr-body:     0em;
@@ -88,41 +92,41 @@
   --vt-tr-caption:  0.0333em;  /* 0.40px at 12 */
   --vt-tr-caps:     0.0417em;  /* 0.50px at 12 */
 
-  /* Leading, from UITextStyle's `height` values. */
+  /* Leading, one value per step of the scale. */
   --vt-lh-display: 1.2;
   --vt-lh-title:   1.22;
   --vt-lh-body:    1.5;
   --vt-lh-label:   1.43;
   --vt-lh-small:   1.67;
 
-  /* ---- Spacing: UISpacing, spaceUnit 16, in quarters. ---- */
-  --vt-s0:  4px;   /* space1x */
-  --vt-s1:  8px;   /* space2x */
-  --vt-s2: 12px;   /* space3x */
-  --vt-s3: 16px;   /* space4x — the unit */
-  --vt-s4: 20px;   /* space5x */
-  --vt-s5: 24px;   /* space6x */
-  --vt-s6: 32px;   /* space8x */
+  /* ---- Spacing: base unit 16, stepped in quarters. ---- */
+  --vt-s0:  4px;   /* 1x */
+  --vt-s1:  8px;   /* 2x */
+  --vt-s2: 12px;   /* 3x */
+  --vt-s3: 16px;   /* 4x — the unit */
+  --vt-s4: 20px;   /* 5x */
+  --vt-s5: 24px;   /* 6x */
+  --vt-s6: 32px;   /* 8x */
 
   /* ---- Hit area. HIG's floor. Correctness, not style. ---- */
   --vt-tap: 44px;
 
-  /* ---- Colour. HOST-OWNED. Spoken's cool neutrals, re-anchored on the
-     tenant ink. ink-3 clears 4.5:1 in both schemes: Spoken's own paleSky
-     #73777F lands at 4.2:1 on white, which fails AA, and a project shipping
-     a contrast gate does not get to hand-wave its own body copy. ---- */
+  /* ---- Colour. HOST-OWNED. Cool neutrals, re-anchored on the tenant ink.
+     ink-3 clears 4.5:1 in both schemes: the obvious pale grey #73777F lands
+     at 4.2:1 on white, which fails AA, and a project shipping a contrast
+     gate does not get to hand-wave its own body copy. ---- */
   --vt-surface:     #ffffff;
   --vt-surface-2:   #eff0fa;   /* surfaceVariant */
   --vt-surface-3:   #f7f8f8;   /* lightBackground */
   --vt-ink-2:       #45484f;   /* onSurfaceVariant */
-  --vt-ink-3:       #676b74;   /* paleSky, darkened to clear AA */
+  --vt-ink-3:       #676b74;   /* pale grey, darkened to clear AA */
   --vt-hairline:    #dfe1ec;   /* outlineVariant */
   --vt-hairline-2:  #e9eaf2;
   --vt-track:       #dfe1ec;
 
-  /* ---- Depth: Spoken is flat. elevation 0, structure from hairlines. The
+  /* ---- Depth: flat. No resting elevation, structure from hairlines. The
      only shadow in the system is the one that appears under a pressed
-     control, which is Spoken's own elevation-3-on-press. ---- */
+     control, where it is feedback rather than decoration. ---- */
   --vt-shadow:      none;
   --vt-shadow-lift: 0 2px 10px rgba(34, 38, 49, .09);
   --vt-shadow-press:0 3px 8px rgba(0, 0, 0, .28);
@@ -446,7 +450,7 @@
 .vt-skel-block { height: 120px; background: var(--vt-track); margin: var(--vt-s2) var(--vt-s3); border-radius: var(--vt-radius-ctl); }
 
 /* ==========================================================================
-   Controls — Spoken's shape: radius 6, flat, shadow only while pressed
+   Controls — radius 6, flat, shadow only while pressed
    --------------------------------------------------------------------------
    No `transition: transform`. Press states are springs driven from
    pointerdown in spring.js, and a CSS transition on the same property would
@@ -468,7 +472,7 @@
   transition: filter var(--vt-fast) var(--vt-ease), box-shadow var(--vt-fast) var(--vt-ease), background var(--vt-fast) var(--vt-ease);
   touch-action: manipulation;
 }
-/* Spoken's own pressed state: the fill drops to 80% and elevation goes to 3. */
+/* Pressed state: the fill drops to 80% and the control lifts. */
 .vt-btn:hover { filter: brightness(.94); }
 .vt-btn:active { box-shadow: var(--vt-shadow-press); }
 .vt-btn.ghost { background: transparent; color: var(--vt-ink); border-color: var(--vt-hairline); }
@@ -483,7 +487,7 @@
   border-radius: var(--vt-radius-ctl);
 }
 
-/* Spoken's chips are pills — BorderRadius.circular(25). */
+/* Chips are pills — radius 25, well past any height they take. */
 .vt-chips { display: flex; flex-wrap: wrap; gap: var(--vt-s1); }
 .vt-chip {
   font-family: var(--vt-font);

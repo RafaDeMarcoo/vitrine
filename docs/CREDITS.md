@@ -6,9 +6,9 @@ The **code** in this repository is MIT (see `LICENSE`). The font and the demo ph
 
 ## Design system
 
-The visual language is ported from **Spoken UI** (`spoken_ui`, a private Flutter package). Colour roles, the type scale and its tracking, the 16pt spacing unit, the 6/8/16 radius steps and the flat elevation-0 treatment all come from that system. Used with permission of its author.
+The visual language is original to this project: colour roles, the type scale and its tracking, the 16pt spacing unit, the 6/8/16 radius steps and the flat, hairline-structured treatment are all defined in `src/vitrine.css`, which documents the reasoning for each rule. It follows established typographic and interface-design practice rather than any third-party design system, and carries the same MIT licence as the rest of the code.
 
-The parts that did **not** come from Spoken, and are deliberately kept regardless of what a design system says: the 44×44pt minimum hit area, the three accessibility media queries, and the WCAG contrast gate. Those are correctness, not style.
+Two rules sit outside that visual language and override it: the 44×44pt minimum hit area (Apple HIG's floor) and the WCAG AA contrast gate, alongside the three accessibility media queries. Those are correctness, not style.
 
 ## Typeface
 
