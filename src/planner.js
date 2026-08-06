@@ -6,7 +6,7 @@
        [{ component: "text", props: {...} },
         { component: "unit_carousel", props: {...} }]
 
-   Two are shipped.
+   Four are shipped.
 
    MockPlanner is deterministic and offline. It exists so the demo works the
    instant the page loads — no key, no network, no rate limit, identical
@@ -17,7 +17,15 @@
    tools, so the model is constrained by exactly the contract the renderer
    trusts. Same registry, one source of truth, no drift.
 
-   Both return the same shape, and the runtime cannot tell them apart.
+   RemotePlanner sends {message, state, history} to your own endpoint and
+   expects {blocks} back — the production shape, where the key and the
+   prompt live on a server you control.
+
+   FallbackPlanner chains two planners: a primary (usually remote) and a
+   fallback (usually mock), so a rate-limited or unreachable endpoint
+   degrades to scripted answers instead of an error.
+
+   All return the same shape, and the runtime cannot tell them apart.
    ========================================================================== */
 
 (function (global) {
@@ -296,9 +304,12 @@
         },
         body: JSON.stringify({
           model: this.cfg.model || "claude-sonnet-4-5",
-          max_tokens: 1400,
+          max_tokens: this.cfg.maxTokens || 1400,
           system: sys,
           tools: tools,
+          // The contract is components-only; "any" stops the model from
+          // drifting into prose on inputs the system prompt didn't foresee.
+          tool_choice: { type: "any" },
           messages: msgs
         })
       }).then((r) => r.json()).then((data) => {
@@ -336,5 +347,84 @@
     });
   };
 
-  global.VitrinePlanner = { MockPlanner, LivePlanner, SYSTEM };
+  /* ======================================================================
+     Remote planner — this page's contract, your server's key
+     ====================================================================== */
+
+  /**
+   * @param {{endpoint:string, timeoutMs?:number}} cfg
+   */
+  function RemotePlanner(cfg) {
+    this.cfg = cfg || {};
+  }
+
+  RemotePlanner.prototype.name = "remote";
+
+  RemotePlanner.prototype.plan = function (message, state, history) {
+    const ctl = typeof AbortController !== "undefined" ? new AbortController() : null;
+    const timer = ctl ? setTimeout(() => ctl.abort(), this.cfg.timeoutMs || 9000) : null;
+
+    return fetch(this.cfg.endpoint, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        message: message,
+        state: state,
+        history: (history || []).slice(-8)
+      }),
+      signal: ctl ? ctl.signal : undefined
+    }).then((r) => {
+      if (!r.ok) {
+        const err = new Error("planner endpoint returned " + r.status);
+        err.status = r.status;
+        throw err;
+      }
+      return r.json();
+    }).then((data) => data.blocks || [])
+      .finally(() => { if (timer) clearTimeout(timer); });
+  };
+
+  /* ======================================================================
+     Fallback planner — remote first, scripted when it can't answer
+     ====================================================================== */
+
+  function FallbackPlanner(primary, fallback) {
+    this.primary = primary;
+    this.fallback = fallback;
+    this.scripted = false; // the page flips this on for auto-played turns
+    this.noted = false;
+  }
+
+  FallbackPlanner.prototype.name = "fallback";
+
+  FallbackPlanner.prototype.plan = function (message, state, history) {
+    const self = this;
+
+    // Synthetic turns (opening, lead receipt) and scripted auto-play stay on
+    // the deterministic planner — no reason to spend a model call on them.
+    if (this.scripted || message === "__open__" || message === "__lead_submitted__") {
+      return Promise.resolve(this.fallback.plan(message, state, history));
+    }
+
+    return Promise.resolve()
+      .then(() => self.primary.plan(message, state, history))
+      .then((blocks) => {
+        if (blocks && blocks.length) return blocks;
+        throw new Error("primary planner returned no blocks");
+      })
+      .catch((err) => {
+        console.warn("[vitrine] live planner unavailable, answering scripted:", err && err.message);
+        const blocks = self.fallback.plan(message, state, history) || [];
+        if (!self.noted) {
+          self.noted = true;
+          const why = err && err.status === 429 ? "hit the demo's rate limit" : "is unreachable";
+          blocks.unshift({ component: "text", props: {
+            body: "(The live model " + why + " right now, so this reply comes scripted.)"
+          }});
+        }
+        return blocks;
+      });
+  };
+
+  global.VitrinePlanner = { MockPlanner, LivePlanner, RemotePlanner, FallbackPlanner, SYSTEM };
 })(typeof window !== "undefined" ? window : globalThis);
