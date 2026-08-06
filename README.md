@@ -236,6 +236,17 @@ The demo puts an API key in the browser because a demo with a server is a demo n
 - Validate on the server too. `VitrineRegistry.validateBlock` runs in Node unchanged.
 - Rate-limit per session, and cap components per turn — a model that emits nine carousels is a bill, not a bug.
 
+## What it costs to run
+
+The runtime is free. The model is a metered utility, and the meter is small.
+
+A live turn sends the system prompt, the inventory block and the eight component schemas — about 3,000 tokens with the demo's twelve units — and gets a few hundred back. On [Claude Haiku](https://claude.com/pricing#api) ($1 per million input tokens, $5 per million output) that is roughly **half a cent per turn**. A whole conversation, greeting to booked test ride, costs less than a dime. The other side of that ledger: the widget sells powersports. If it books one test ride a month, it has paid for years of API.
+
+Two ways to pay even less:
+
+- **Nothing.** Without a key, `MockPlanner` answers scripted and offline, and `FallbackPlanner` degrades to it whenever the endpoint is rate-limited or unreachable. You pay for the model only in the configuration where it books visits.
+- **[Prompt caching](https://platform.claude.com/docs/en/build-with-claude/prompt-caching).** The system-and-schemas prefix is identical every turn, and cached input bills at a tenth of the price. One catch: Haiku's minimum cacheable prefix is 4,096 tokens, and the demo's twelve-unit inventory sits below it — caching kicks in once you point the planner at a real floor's inventory, which is exactly when the volume starts to matter.
+
 ## Honest limitations
 
 - **The conversion claim is unproven in this setting.** There is strong academic evidence that people prefer generative interfaces to plain text — [Google Research](https://research.google/blog/generative-ui-a-rich-custom-visual-interactive-user-experience-for-any-prompt/) measures 83–97% preference over markdown and plain text, and [Generative Interfaces for Language Models](https://arxiv.org/abs/2508.19227) (ACL 2026 Findings) finds ~70% across 76 participants on their own real queries. But **no vendor has published a controlled A/B of cards versus text inside a production chat widget.** Not one. Instrument before you believe anything, including this README.
