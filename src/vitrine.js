@@ -213,7 +213,22 @@
   };
 
   Vitrine.prototype._scroll = function () {
-    this.thread.scrollTop = this.thread.scrollHeight;
+    const t = this.thread;
+    let top = t.scrollHeight;
+
+    /* Follow the bottom while a turn grows — but never past the start of the
+       reply being rendered. A reply taller than the viewport that ends pinned
+       to its own bottom reads as a crop: the card sliced mid-slider behind the
+       glass header. Anchoring at the turn's start, just clear of the header,
+       leaves short replies pinned to the bottom (the min resolves to it) and
+       tall ones readable from their first line. */
+    const turn = this._anchorTurn;
+    if (turn && turn.parentNode === t) {
+      const start = turn.getBoundingClientRect().top - t.getBoundingClientRect().top
+        + t.scrollTop - parseFloat(getComputedStyle(t).paddingTop);
+      top = Math.min(top, Math.max(0, start));
+    }
+    t.scrollTop = top;
   };
 
   Vitrine.prototype._userBubble = function (text) {
@@ -296,6 +311,7 @@
     this.sendBtn.disabled = true;
 
     const silent = meta && meta.silent;
+    this._anchorTurn = null; // the user bubble pins to the bottom as usual
     if (!silent) {
       this._userBubble(text);
       this.history.push({ role: "user", text: text });
@@ -303,6 +319,7 @@
     this.onEvent({ type: "user_message", text: text, meta: meta || {} });
 
     const thinking = this._thinking();
+    this._anchorTurn = thinking;
 
     return Promise.resolve()
       .then(() => this.planner.plan(text, this.state, this.history))
